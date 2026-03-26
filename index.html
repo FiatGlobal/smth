@@ -17,7 +17,7 @@
 canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
 .main-content{flex:1;position:relative;z-index:2;}
 .wrap{max-width:800px;margin:0 auto;padding:0 48px;}
-.nav{display:flex;justify-content:space-between;align-items:center;padding:40px 0 0;gap:24px;}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:40px 0 0;}
 .nav-brand{display:flex;align-items:baseline;gap:1px;cursor:pointer;user-select:none;}
 .nav-brand:hover .nb-1,.nav-brand:hover .nb-2,.nav-brand:hover .nb-3,.nav-brand:hover .nb-4,.nav-brand:hover .nb-5,.nav-brand:hover .nb-6{opacity:0.7;}
 .nb-1{font-family:'Italiana',serif;font-size:32px;color:rgba(255,255,255,0.5);transition:opacity 0.2s;}
@@ -29,12 +29,6 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .nb-6{font-family:'Righteous',sans-serif;font-size:27px;color:rgba(255,255,255,0.46);letter-spacing:0.04em;transition:opacity 0.2s;}
 .nav-contact{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.45);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;user-select:none;padding:4px 0;}
 .nav-contact:hover{color:rgba(255,255,255,0.8);}
-.nav-ticker-wrap{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);}
-.nav-ticker{display:flex;white-space:nowrap;animation:navTick 14s linear infinite;}
-.nav-ticker:hover{animation-play-state:paused;}
-.nav-ticker-item{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:0.22em;padding:0 28px;user-select:none;}
-.nav-ticker-item .nt-hi{color:rgba(255,255,255,0.32);}
-@keyframes navTick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 .back-btn{display:inline-flex;align-items:center;gap:12px;cursor:pointer;user-select:none;margin-bottom:64px;transition:opacity 0.2s;}
 .back-btn:hover{opacity:0.7;}
 .back-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;}
@@ -149,14 +143,8 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .err-sub{font-size:13px;color:rgba(255,255,255,0.22);letter-spacing:0.1em;margin-top:36px;}
 .toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,30,0.95);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 24px;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:0.06em;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.site-footer{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:0;overflow:hidden;}
-.footer-ticker-wrap{width:100%;overflow:hidden;padding:18px 0;border-bottom:none;mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%);}
-.footer-ticker{display:flex;white-space:nowrap;animation:tickerScroll 22s linear infinite;}
-.footer-ticker:hover{animation-play-state:paused;}
-.ticker-item{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.18em;padding:0 40px;user-select:none;}
-.ticker-item .ticker-dot{color:rgba(255,255,255,0.08);margin:0 4px;}
-.ticker-hi{color:rgba(255,255,255,0.4);}
-@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.site-footer{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:24px 0;}
+.footer-inner{max-width:800px;margin:0 auto;padding:0 48px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.1em;}
 
 /* ── TABLET ── */
 @media(max-width:768px){
@@ -201,26 +189,6 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
   <div class="nav">
     <div class="nav-brand" onclick="showHome()">
       <span class="nb-1">s</span><span class="nb-2">m</span><span class="nb-3">t</span><span class="nb-4">h</span><span class="nb-dot">.</span><span class="nb-5">i</span><span class="nb-6">s</span>
-    </div>
-    <div class="nav-ticker-wrap">
-      <div class="nav-ticker">
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
-      </div>
     </div>
     <span class="nav-contact" onclick="showContact()">contact</span>
   </div>
@@ -356,18 +324,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 </div></div>
 <footer class="site-footer">
-  <div class="footer-ticker-wrap">
-    <div class="footer-ticker" id="footerTicker">
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
-    </div>
-  </div>
+  <div class="footer-inner"><span>© 2026 smth.is</span></div>
 </footer>
 </div>
 
@@ -539,6 +496,17 @@ function startContactTW(){
   function tick(){const line=lines[li];if(!line){homeShownOnce=true;return;}const el=document.getElementById(line.el);const part=line.parts[pi];if(!part){pi=0;ci=0;li++;setTimeout(tick,120);return;}if(ci===0&&pi===0){el.innerHTML='';el.appendChild(cur);}const ch=part.text[ci];if(ch!==undefined){const sp=document.createElement('span');if(part.cls)sp.className=part.cls;sp.textContent=ch;el.insertBefore(sp,cur);ci++;}else{ci=0;pi++;}setTimeout(tick,Math.random()*40+28);}
   fadeSchedule.forEach(({id,delay})=>{setTimeout(()=>{const el=document.getElementById(id);if(el)el.classList.add('show');},delay);});
   setTimeout(tick,200);
+})();
+/* Scrolling browser tab title */
+(function(){
+  const base = 'smth.is';
+  const scroll = '   smth.is   ·   smth.is   ·   smth.is   ·   ';
+  let pos = 0;
+  const len = scroll.length;
+  setInterval(() => {
+    document.title = scroll.slice(pos) + scroll.slice(0, pos);
+    pos = (pos + 1) % len;
+  }, 160);
 })();
 </script>
 </body>
