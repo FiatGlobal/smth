@@ -359,10 +359,12 @@ fetchTgCount();
 let homeShownOnce=false,contactShownOnce=false;
 const ctItems=['ctSub','ctStatus','ctCards','ctDiv','ctNote'];
 
-function showHome(){
+function showHome(push){
   document.getElementById('homePage').classList.remove('hidden');
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
+  if(push!==false) history.pushState({},'','/');;
+  document.title='smth.is';
   if(homeShownOnce){
     ['heroSub','projLabel','i3','i4','i5'].forEach(id=>{
       const el=document.getElementById(id);
@@ -371,10 +373,12 @@ function showHome(){
   }
 }
 
-function showContact(){
+function showContact(push){
   document.getElementById('homePage').classList.add('hidden');
   const cp=document.getElementById('contactPage');
   cp.classList.add('active');
+  if(push!==false) history.pushState({},'','/contact');
+  document.title='contact — smth.is';
   if(contactShownOnce){
     document.getElementById('ctTitle').innerHTML='<span style="color:rgba(255,255,255,0.12)">get in </span><span class="br">touch.</span>';
     ctItems.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('instant');});
@@ -387,21 +391,33 @@ function showContact(){
   setTimeout(startContactTW,350);
 }
 
-function show404(path){
+function show404(path, push){
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('errPath').textContent=path||'unknown';
   document.getElementById('page404').classList.add('active');
+  if(push!==false) history.pushState({},'','/'+(path||'404'));
+  document.title='404 — smth.is';
 }
 window.show404=show404;
 
-/* Handle URL-based routing */
+/* Handle URL-based routing on load */
 (function(){
-  const path=window.location.pathname.replace('/','');
-  if(path&&path!=='index.html'){
-    setTimeout(()=>show404(path),100);
+  const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
+  if(path==='contact'){
+    setTimeout(()=>showContact(false),100);
+  } else if(path&&path!==''&&path!=='index.html'){
+    setTimeout(()=>show404(path,false),100);
   }
 })();
+
+/* Handle browser back/forward */
+window.addEventListener('popstate',function(){
+  const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
+  if(path==='contact') showContact(false);
+  else if(path===''||path==='index.html') showHome(false);
+  else show404(path,false);
+});
 
 function copyEmail(){
   const email='partners@esimpson.org';
