@@ -331,31 +331,24 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <script>
 document.getElementById('fav').href='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><rect width=\'32\' height=\'32\' rx=\'8\' fill=\'%23000000\'/><circle cx=\'16\' cy=\'16\' r=\'3\' fill=\'%23ffffff\'/></svg>';
 
-/* TG count — fetches via Telegram's public widget API */
+fetchTgCount();
+/* TG count — via /api/subscribers edge function */
 async function fetchTgCount(){
   const el=document.getElementById('tgCount');
   if(!el)return;
   try{
-    // Use telegram widget count endpoint (no auth needed for public channels)
-    const r=await fetch('https://api.telegram.org/bot/getChatMembersCount');
-    // Fallback: try t.me widget approach
-    throw new Error('need widget');
-  }catch{
-    try{
-      // Attempt via a CORS-friendly public count proxy
-      const r=await fetch('https://tg.i-c-a.su/json/eSimpsonConnection',{signal:AbortSignal.timeout(4000)});
-      const d=await r.json();
-      if(d&&d.participants_count){
-        const n=d.participants_count;
-        el.textContent=n>=1000?(n/1000).toFixed(1).replace('.0','')+'k':n.toString();
-      }
-    }catch{
-      // Keep last known value
-      el.textContent='22 014';
+    const r=await fetch('/api/subscribers',{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    if(d&&d.count){
+      const n=d.count;
+      el.textContent=n>=1000
+        ?(n/1000).toFixed(1).replace(/\.0$/,'')+'k'
+        :n.toLocaleString('ru-RU');
     }
-  }
+  }catch{ /* keep fallback 22 014 */ }
 }
 fetchTgCount();
+
 let homeShownOnce=false,contactShownOnce=false;
 const ctItems=['ctSub','ctStatus','ctCards','ctDiv','ctNote'];
 
