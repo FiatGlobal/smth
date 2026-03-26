@@ -121,6 +121,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .changelog-page.active{display:block;}
 .cl-title{font-family:'Space Grotesk',sans-serif;font-weight:300;font-size:clamp(40px,9vw,88px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);}
 .cl-title .br{color:#f0f0f0;font-weight:400;}
+.cl-tw-cursor{display:inline-block;width:4px;height:0.82em;background:#f0f0f0;vertical-align:middle;margin-left:3px;animation:cblink 1s step-end infinite;}
 .cl-sub{font-size:13px;color:rgba(255,255,255,0.28);margin-top:32px;line-height:2;letter-spacing:0.02em;}
 .cl-feed{margin-top:72px;display:flex;flex-direction:column;gap:10px;}
 .cl-entry{position:relative;border-radius:22px;overflow:hidden;}
@@ -362,10 +363,10 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
       <div class="back-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <span class="back-label">back</span>
     </div>
-    <div class="cl-title"><span>change</span><span class="br">log.</span></div>
-    <p class="cl-sub"><span class="rule"></span>what shipped, what changed, what's new.</p>
+    <div class="cl-title" id="clTitle"></div>
+    <p class="cl-sub ct-item" id="clSub"><span class="rule"></span>what shipped, what changed, what's new.</p>
 
-    <div class="cl-feed">
+    <div class="cl-feed ct-item" id="clFeed">
 
       <!-- mar 27 — global -->
       <div class="cl-entry cl-entry-global">
@@ -440,7 +441,7 @@ async function fetchTgCount(){
 }
 fetchTgCount();
 
-let homeShownOnce=false,contactShownOnce=false;
+let homeShownOnce=false,contactShownOnce=false,changelogShownOnce=false;
 const ctItems=['ctSub','ctStatus','ctCards','ctDiv','ctNote'];
 
 function showChangelog(push){
@@ -450,6 +451,17 @@ function showChangelog(push){
   document.getElementById('changelogPage').classList.add('active');
   if(push!==false) history.pushState({},'','/changelog');
   document.title='changelog — smth.is';
+  if(changelogShownOnce){
+    document.getElementById('clTitle').innerHTML='<span style="color:rgba(255,255,255,0.12)">change</span><span class="br">log.</span>';
+    ['clSub','clFeed'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('instant');});
+    return;
+  }
+  const cp=document.getElementById('changelogPage');
+  cp.style.opacity='0';cp.style.transform='translateY(12px)';
+  setTimeout(()=>{cp.style.transition='opacity 0.45s,transform 0.45s';cp.style.opacity='1';cp.style.transform='none';},20);
+  document.getElementById('clTitle').innerHTML='';
+  ['clSub','clFeed'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('instant');el.classList.remove('shown');}});
+  setTimeout(startChangelogTW,350);
 }
 
 function showHome(push){
@@ -536,6 +548,24 @@ function startContactTW(){
     if(i>=full.length){
       cur.remove();contactShownOnce=true;
       ctItems.forEach((id,j)=>{setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('shown');},j*130);});
+      return;
+    }
+    const sp=document.createElement('span');sp.textContent=full[i];
+    if(i>=brightStart)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
+    el.insertBefore(sp,cur);i++;setTimeout(tick,Math.random()*55+38);
+  }
+  tick();
+}
+
+function startChangelogTW(){
+  const el=document.getElementById('clTitle');el.innerHTML='';
+  const full='changelog.';const brightStart=6;
+  const cur=document.createElement('span');cur.className='cl-tw-cursor';el.appendChild(cur);
+  let i=0;
+  function tick(){
+    if(i>=full.length){
+      cur.remove();changelogShownOnce=true;
+      ['clSub','clFeed'].forEach((id,j)=>{setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('shown');},j*160);});
       return;
     }
     const sp=document.createElement('span');sp.textContent=full[i];
