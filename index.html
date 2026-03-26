@@ -37,6 +37,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .nb-6{font-family:'Righteous',sans-serif;font-size:27px;color:rgba(255,255,255,0.46);letter-spacing:0.04em;transition:opacity 0.2s;}
 .nav-contact{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.45);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;user-select:none;padding:4px 0;}
 .nav-contact:hover{color:rgba(255,255,255,0.8);}
+.nav-right{display:flex;align-items:center;gap:28px;}
 .back-btn{display:inline-flex;align-items:center;gap:12px;cursor:pointer;user-select:none;margin-bottom:64px;transition:opacity 0.2s;}
 .back-btn:hover{opacity:0.7;}
 .back-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;}
@@ -115,6 +116,28 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .contact-page{display:none;padding:60px 0 0;}
 .contact-page.active{display:block;}
 .home-page.hidden{display:none;}
+/* CHANGELOG */
+.changelog-page{display:none;padding:60px 0 0;}
+.changelog-page.active{display:block;}
+.cl-title{font-family:'Space Grotesk',sans-serif;font-weight:300;font-size:clamp(40px,9vw,88px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);}
+.cl-title .br{color:#f0f0f0;font-weight:400;}
+.cl-sub{font-size:13px;color:rgba(255,255,255,0.28);margin-top:32px;line-height:2;letter-spacing:0.02em;}
+.cl-feed{margin-top:72px;display:flex;flex-direction:column;gap:10px;}
+.cl-entry{position:relative;border-radius:22px;overflow:hidden;}
+.cl-entry-b{position:absolute;inset:0;border-radius:22px;border:0.5px solid rgba(255,255,255,0.07);background:#0e0e0e;}
+.cl-entry-in{position:relative;z-index:1;padding:28px 36px;}
+.cl-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+.cl-date{font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.16em;}
+.cl-project{font-size:10px;letter-spacing:0.12em;padding:3px 10px;border-radius:100px;background:rgba(130,180,255,0.08);color:rgba(130,180,255,0.55);border:0.5px solid rgba(130,180,255,0.15);}
+.cl-items{display:flex;flex-direction:column;gap:10px;}
+.cl-item{display:flex;gap:14px;align-items:flex-start;}
+.cl-bullet{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;margin-top:7px;}
+.cl-text{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;letter-spacing:0.01em;}
+.cl-text .hl{color:rgba(255,255,255,0.82);}
+.cl-entry-global .cl-entry-b{border-color:rgba(255,255,255,0.09);background:#111;}
+.cl-kitty{display:flex;align-items:center;gap:20px;margin-top:14px;}
+.cl-kitty img{width:52px;height:52px;object-fit:contain;border-radius:10px;filter:brightness(0.92);}
+.cl-kitty-text{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.6;}
 .ct-item{opacity:0;transition:opacity 0.7s;}
 .ct-item.shown{opacity:1;}
 .ct-item.instant{opacity:1;transition:none;}
@@ -198,7 +221,10 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div class="nav-brand" onclick="showHome()">
       <span class="nb-1">s</span><span class="nb-2">m</span><span class="nb-3">t</span><span class="nb-4">h</span><span class="nb-dot">.</span><span class="nb-5">i</span><span class="nb-6">s</span>
     </div>
-    <span class="nav-contact" onclick="showContact()">contact</span>
+    <div class="nav-right">
+      <span class="nav-contact" onclick="showChangelog()">changelog</span>
+      <span class="nav-contact" onclick="showContact()">contact</span>
+    </div>
   </div>
 
   <!-- HOME -->
@@ -330,6 +356,63 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div style="height:80px;"></div>
   </div>
 
+  <!-- CHANGELOG -->
+  <div class="changelog-page" id="changelogPage">
+    <div class="back-btn" onclick="showHome()">
+      <div class="back-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="back-label">back</span>
+    </div>
+    <div class="cl-title"><span>change</span><span class="br">log.</span></div>
+    <p class="cl-sub"><span class="rule"></span>what shipped, what changed, what's new.</p>
+
+    <div class="cl-feed">
+
+      <!-- mar 27 — global -->
+      <div class="cl-entry cl-entry-global">
+        <div class="cl-entry-b"></div>
+        <div class="cl-entry-in">
+          <div class="cl-entry-head">
+            <span class="cl-date">mar 27, 2026</span>
+            <span class="cl-project">// all projects</span>
+          </div>
+          <div class="cl-items">
+            <div class="cl-item">
+              <div class="cl-bullet"></div>
+              <div class="cl-text"><span class="hl">bunkitty</span> — meet the official esimpson mascot. a small cat, a big vibe.</div>
+            </div>
+          </div>
+          <div class="cl-kitty">
+            <img src="/kitty.png" alt="Bunkitty" onerror="this.style.display='none'">
+            <div class="cl-kitty-text">bunkitty is now present across all esimpson projects.<br><span style="color:rgba(255,255,255,0.28)">// say hi</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- mar 27 — proxy -->
+      <div class="cl-entry">
+        <div class="cl-entry-b"></div>
+        <div class="cl-entry-in">
+          <div class="cl-entry-head">
+            <span class="cl-date">mar 27, 2026</span>
+            <span class="cl-project">telegram_free_proxy</span>
+          </div>
+          <div class="cl-items">
+            <div class="cl-item">
+              <div class="cl-bullet"></div>
+              <div class="cl-text">proxy rotation interval changed from <span class="hl">30 min → 1 hour</span> — more stable connections, less churn</div>
+            </div>
+            <div class="cl-item">
+              <div class="cl-bullet"></div>
+              <div class="cl-text"><span class="hl">pre-publish verification</span> — every proxy is now tested before going live. dead links are filtered out automatically</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="height:80px;"></div>
+  </div>
+
 </div></div>
 <footer class="site-footer">
   <div class="footer-inner"><span>© 2026 smth.is</span></div>
@@ -360,10 +443,20 @@ fetchTgCount();
 let homeShownOnce=false,contactShownOnce=false;
 const ctItems=['ctSub','ctStatus','ctCards','ctDiv','ctNote'];
 
+function showChangelog(push){
+  document.getElementById('homePage').classList.add('hidden');
+  document.getElementById('contactPage').classList.remove('active');
+  document.getElementById('page404').classList.remove('active');
+  document.getElementById('changelogPage').classList.add('active');
+  if(push!==false) history.pushState({},'','/changelog');
+  document.title='changelog — smth.is';
+}
+
 function showHome(push){
   document.getElementById('homePage').classList.remove('hidden');
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
+  document.getElementById('changelogPage').classList.remove('active');
   if(push!==false) history.pushState({},'','/');;
   document.title='smth.is';
   if(homeShownOnce){
@@ -376,6 +469,7 @@ function showHome(push){
 
 function showContact(push){
   document.getElementById('homePage').classList.add('hidden');
+  document.getElementById('changelogPage').classList.remove('active');
   const cp=document.getElementById('contactPage');
   cp.classList.add('active');
   if(push!==false) history.pushState({},'','/contact');
@@ -407,6 +501,8 @@ window.show404=show404;
   const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
   if(path==='contact'){
     setTimeout(()=>showContact(false),100);
+  } else if(path==='changelog'){
+    setTimeout(()=>showChangelog(false),100);
   } else if(path&&path!==''&&path!=='index.html'){
     setTimeout(()=>show404(path,false),100);
   }
@@ -416,6 +512,7 @@ window.show404=show404;
 window.addEventListener('popstate',function(){
   const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
   if(path==='contact') showContact(false);
+  else if(path==='changelog') showChangelog(false);
   else if(path===''||path==='index.html') showHome(false);
   else show404(path,false);
 });
@@ -516,13 +613,23 @@ function startContactTW(){
 })();
 /* Scrolling browser tab title */
 (function(){
-  const base = 'smth.is';
-  const scroll = '   smth.is   ·   smth.is   ·   smth.is   ·   ';
+  const titles = {
+    '/': '   smth.is   ·   smth.is   ·   smth.is   ·   ',
+    '/contact': '   contact — smth.is   ·   contact — smth.is   ·   ',
+    '/changelog': '   changelog — smth.is   ·   changelog — smth.is   ·   ',
+  };
   let pos = 0;
-  const len = scroll.length;
+  let currentScroll = titles['/'];
+  function updateScroll(){
+    const key = window.location.pathname.replace(/\/$/,'') || '/';
+    currentScroll = titles[key] || titles['/'];
+  }
+  updateScroll();
   setInterval(() => {
-    document.title = scroll.slice(pos) + scroll.slice(0, pos);
-    pos = (pos + 1) % len;
+    updateScroll();
+    const len = currentScroll.length;
+    document.title = currentScroll.slice(pos % len) + currentScroll.slice(0, pos % len);
+    pos++;
   }, 160);
 })();
 </script>
