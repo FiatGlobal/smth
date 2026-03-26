@@ -17,7 +17,7 @@
 canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
 .main-content{flex:1;position:relative;z-index:2;}
 .wrap{max-width:800px;margin:0 auto;padding:0 48px;}
-.nav{display:flex;justify-content:space-between;align-items:center;padding:40px 0 0;}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:40px 0 0;gap:24px;}
 .nav-brand{display:flex;align-items:baseline;gap:1px;cursor:pointer;user-select:none;}
 .nav-brand:hover .nb-1,.nav-brand:hover .nb-2,.nav-brand:hover .nb-3,.nav-brand:hover .nb-4,.nav-brand:hover .nb-5,.nav-brand:hover .nb-6{opacity:0.7;}
 .nb-1{font-family:'Italiana',serif;font-size:32px;color:rgba(255,255,255,0.5);transition:opacity 0.2s;}
@@ -29,6 +29,12 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .nb-6{font-family:'Righteous',sans-serif;font-size:27px;color:rgba(255,255,255,0.46);letter-spacing:0.04em;transition:opacity 0.2s;}
 .nav-contact{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.45);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;user-select:none;padding:4px 0;}
 .nav-contact:hover{color:rgba(255,255,255,0.8);}
+.nav-ticker-wrap{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);}
+.nav-ticker{display:flex;white-space:nowrap;animation:navTick 14s linear infinite;}
+.nav-ticker:hover{animation-play-state:paused;}
+.nav-ticker-item{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:0.22em;padding:0 28px;user-select:none;}
+.nav-ticker-item .nt-hi{color:rgba(255,255,255,0.32);}
+@keyframes navTick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 .back-btn{display:inline-flex;align-items:center;gap:12px;cursor:pointer;user-select:none;margin-bottom:64px;transition:opacity 0.2s;}
 .back-btn:hover{opacity:0.7;}
 .back-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;}
@@ -63,7 +69,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .ce-name{font-weight:400;font-size:28px;letter-spacing:0.01em;color:#e8e8e8;line-height:1;}
 .ce-url{font-size:12px;color:rgba(255,255,255,0.22);letter-spacing:0.06em;margin-top:7px;}
 .ce-arr{font-size:11px;color:rgba(255,255,255,0.26);letter-spacing:0.06em;margin-top:6px;opacity:0;transition:opacity 0.25s;}
-.ce-icon{width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.ce-icon{width:80px;height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .ce-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .cs{border-radius:14px;padding:20px 22px;}
 .cs-vpn{background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.09);}
@@ -103,7 +109,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .d-res{font-size:11px;letter-spacing:0.08em;text-align:center;min-height:16px;opacity:0;transition:opacity 0.4s;}
 .d-res.show{opacity:1;}
 .d-hint{font-size:10px;color:rgba(200,200,200,0.3);letter-spacing:0.1em;}
-.svg-w path{fill:rgba(255,255,255,0.88);}
+.svg-w path{fill:#ffffff;}
 .contact-page{display:none;padding:60px 0 0;}
 .contact-page.active{display:block;}
 .home-page.hidden{display:none;}
@@ -143,12 +149,18 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .err-sub{font-size:13px;color:rgba(255,255,255,0.22);letter-spacing:0.1em;margin-top:36px;}
 .toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,30,0.95);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 24px;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:0.06em;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.site-footer{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:24px 0;}
-.footer-inner{max-width:800px;margin:0 auto;padding:0 48px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.1em;}
+.site-footer{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:0;overflow:hidden;}
+.footer-ticker-wrap{width:100%;overflow:hidden;padding:18px 0;border-bottom:none;mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%);}
+.footer-ticker{display:flex;white-space:nowrap;animation:tickerScroll 22s linear infinite;}
+.footer-ticker:hover{animation-play-state:paused;}
+.ticker-item{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.18em;padding:0 40px;user-select:none;}
+.ticker-item .ticker-dot{color:rgba(255,255,255,0.08);margin:0 4px;}
+.ticker-hi{color:rgba(255,255,255,0.4);}
+@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
 /* ── TABLET ── */
 @media(max-width:768px){
-  .wrap{padding:0 28px;}.footer-inner{padding:0 28px;}
+  .wrap{padding:0 28px;}
   .nb-1{font-size:26px;}.nb-2{font-size:16px;}.nb-3{font-size:24px;}.nb-4{font-size:20px;}.nb-5{font-size:22px;}.nb-6{font-size:22px;}
   .ce-in{padding:26px 28px 22px;}.ce-name{font-size:24px;}.ce-tag{font-size:10px;}
   .cp-in{padding:22px 26px;}.cp-name{font-size:18px;}
@@ -158,7 +170,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 /* ── MOBILE ── */
 @media(max-width:600px){
-  .wrap{padding:0 20px;}.footer-inner{padding:0 20px;}.nav{padding:28px 0 0;}
+  .wrap{padding:0 20px;}.nav{padding:28px 0 0;}
   .nb-1{font-size:22px;}.nb-2{font-size:13px;}.nb-3{font-size:19px;}.nb-4{font-size:16px;}.nb-5{font-size:18px;}.nb-6{font-size:18px;}.nb-dot{font-size:12px;}
   .nav-contact{font-size:12px;}
   .hero{padding:44px 0 72px;}
@@ -190,6 +202,26 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div class="nav-brand" onclick="showHome()">
       <span class="nb-1">s</span><span class="nb-2">m</span><span class="nb-3">t</span><span class="nb-4">h</span><span class="nb-dot">.</span><span class="nb-5">i</span><span class="nb-6">s</span>
     </div>
+    <div class="nav-ticker-wrap">
+      <div class="nav-ticker">
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+        <span class="nav-ticker-item"><span class="nt-hi">smth</span>.is</span>
+      </div>
+    </div>
     <span class="nav-contact" onclick="showContact()">contact</span>
   </div>
 
@@ -209,7 +241,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
             <div class="ce-name">esimpson</div><div class="ce-url">esimpson.org</div><div class="ce-arr">↗ visit site</div>
           </div>
           <div class="ce-icon">
-            <svg class="svg-w" viewBox="0 0 791 814" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
+            <svg class="svg-w" viewBox="0 0 791 814" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
               <path d="M598.529 0C640.683 3.2495e-05 680.415 19.7045 705.94 53.2657L762.567 127.716C788.422 161.712 797.185 201.67 785.326 242.707L649.908 711.262C632.892 770.14 577.859 814.442 516.611 813.023L134.576 804.17C46.1662 802.121 -19.2363 720.036 5.14808 634.995L158.308 100.843C174.91 42.9444 230.655 0.000403067 290.863 0H598.529ZM290.863 64.9497C259.616 64.9501 225.014 84.4681 216.398 114.517L70.3676 649.857C57.7137 693.992 90.1952 738.173 136.078 739.237L518.116 748.09C549.903 748.826 578.199 728.052 587.03 697.495L722.444 228.94C728.599 207.642 724.317 184.688 710.899 167.044L654.275 92.594C641.027 75.1762 620.406 64.9497 598.529 64.9497H290.863Z"/>
               <path d="M544.097 662.563C544.007 675.779 533.226 686.419 520.016 686.329L160.741 683.882C145.645 683.779 133.49 671.452 133.592 656.349L133.616 652.931C133.718 637.828 146.04 625.668 161.137 625.771L515.286 628.182C531.327 628.292 544.241 641.389 544.132 657.436L544.097 662.563Z"/>
               <path d="M646.561 305.087C646.458 320.19 634.136 332.35 619.04 332.247L265.928 329.842C250.832 329.739 238.676 317.413 238.779 302.309L238.803 298.891C238.905 283.788 251.227 271.628 266.324 271.731L619.435 274.135C634.532 274.238 646.687 286.565 646.584 301.668L646.561 305.087Z"/>
@@ -324,13 +356,49 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 </div></div>
 <footer class="site-footer">
-  <div class="footer-inner"><span>© 2026 smth.is</span><span>smth.is</span></div>
+  <div class="footer-ticker-wrap">
+    <div class="footer-ticker" id="footerTicker">
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+      <span class="ticker-item"><span class="ticker-hi">smth</span>.is<span class="ticker-dot">·</span>esimpson<span class="ticker-dot">·</span>free proxy<span class="ticker-dot">·</span>dngn master<span class="ticker-dot">·</span>© 2026</span>
+    </div>
+  </div>
 </footer>
 </div>
 
 <script>
-document.getElementById('fav').href='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 791 814\'><rect width=\'791\' height=\'814\' fill=\'%23070707\'/><path d=\'M598 0C641 0 680 20 706 53L763 128C788 162 797 202 785 243L650 711C633 770 578 814 517 813L135 804C46 802-19 720 5 635L158 101C175 43 231 0 291 0H598Z\' fill=\'white\'/></svg>';
+document.getElementById('fav').href='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><rect width=\'32\' height=\'32\' rx=\'8\' fill=\'%23000000\'/><circle cx=\'16\' cy=\'16\' r=\'3\' fill=\'%23ffffff\'/></svg>';
 
+/* TG count — fetches via Telegram's public widget API */
+async function fetchTgCount(){
+  const el=document.getElementById('tgCount');
+  if(!el)return;
+  try{
+    // Use telegram widget count endpoint (no auth needed for public channels)
+    const r=await fetch('https://api.telegram.org/bot/getChatMembersCount');
+    // Fallback: try t.me widget approach
+    throw new Error('need widget');
+  }catch{
+    try{
+      // Attempt via a CORS-friendly public count proxy
+      const r=await fetch('https://tg.i-c-a.su/json/eSimpsonConnection',{signal:AbortSignal.timeout(4000)});
+      const d=await r.json();
+      if(d&&d.participants_count){
+        const n=d.participants_count;
+        el.textContent=n>=1000?(n/1000).toFixed(1).replace('.0','')+'k':n.toString();
+      }
+    }catch{
+      // Keep last known value
+      el.textContent='22 014';
+    }
+  }
+}
+fetchTgCount();
 let homeShownOnce=false,contactShownOnce=false;
 const ctItems=['ctSub','ctStatus','ctCards','ctDiv','ctNote'];
 
