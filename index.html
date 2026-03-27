@@ -308,7 +308,11 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
           </div>
         </div>
         <div class="cpx-icon" id="cpxPreview">
-        <canvas id="cpxCanvas" width="30" height="30" style="width:72px;height:72px;image-rendering:pixelated;border-radius:8px;opacity:0.75;flex-shrink:0;"></canvas>
+          <svg width="72" height="72" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated;border-radius:8px;flex-shrink:0;">
+            <rect width="30" height="30" fill="#0e0e0e"/>
+            <!-- pixel dot — matches the favicon white dot -->
+            <rect x="12" y="12" width="6" height="6" fill="#f0f0f0"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -682,7 +686,7 @@ function showPixel(push){
   if(push!==false) history.pushState({},'','/pixel');
   document.title='pixel_wall — smth.is';
   if(pixelShownOnce){
-    document.getElementById('pxPageTitle').innerHTML='<span style="color:rgba(255,255,255,0.12)">pixel</span><span class="br">_wall.</span>';
+    document.getElementById('pxPageTitle').innerHTML='<span class="br">pixel</span><span style="color:rgba(255,255,255,0.12)">_wall.</span>';
     ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('tw-fade');el.style.opacity='1';}});
     return;
   }
@@ -694,13 +698,13 @@ function showPixel(push){
   ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.add('tw-fade');el.style.opacity='';}});
   // Typewriter
   const el=document.getElementById('pxPageTitle');
-  const full='pixel_wall.';const brightStart=5;
+  const full='pixel_wall.';const brightEnd=5;
   const cur=document.createElement('span');cur.className='cl-tw-cursor';el.appendChild(cur);
   let i=0;
   function tick(){
     if(i>=full.length){cur.remove();['pxPageSub'].forEach((id,j)=>{setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('show');},j*160);});return;}
     const sp=document.createElement('span');sp.textContent=full[i];
-    if(i>=brightStart)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
+    if(i<brightEnd)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
     el.insertBefore(sp,cur);i++;setTimeout(tick,Math.random()*55+38);
   }
   setTimeout(tick,350);
@@ -1281,27 +1285,6 @@ function startChangelogTW(){
     }catch(e){console.log('gallery err',e);}
   }
   loadGallery();
-
-  // Render a preview on the home card
-  function renderCardPreview(items){
-    const cv=document.getElementById('cpxCanvas');
-    if(!cv||!items||!items.length) return;
-    const item=items[Math.floor(Math.random()*Math.min(items.length,5))];
-    if(!item) return;
-    cv.width=item.w||30;cv.height=item.h||30;
-    const cx=cv.getContext('2d');
-    cx.fillStyle='#0e0e0e';cx.fillRect(0,0,cv.width,cv.height);
-    (item.pixels||[]).forEach((col,i)=>{
-      if(!col)return;
-      const x=i%cv.width,y=Math.floor(i/cv.width);
-      cx.fillStyle=col;cx.fillRect(x,y,1,1);
-    });
-  }
-  // Fetch one art for preview
-  fetch('/api/pixels?type=liked').then(r=>r.json()).then(items=>{
-    if(items&&items.length) renderCardPreview(items);
-    else fetch('/api/pixels?type=new').then(r=>r.json()).then(renderCardPreview);
-  }).catch(()=>{});
 })();
 </script>
 (function(){
