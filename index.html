@@ -418,7 +418,17 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <div class="px-modal" id="pxModal" onclick="closePxModal()">
   <div class="px-modal-inner" onclick="event.stopPropagation()">
     <canvas id="pxModalCanvas" width="30" height="30"></canvas>
-    <span class="px-modal-close" onclick="closePxModal()">// close</span>
+    <div class="px-modal-actions">
+      <span class="px-modal-close" onclick="closePxModal()">// close</span>
+      <span class="px-modal-flag" id="pxFlagBtn">// flag</span>
+    </div>
+    <!-- Vote panel — shown after flag click -->
+    <div class="px-vote-panel" id="pxVotePanel" style="display:none;">
+      <div class="px-vote-title">flag for removal</div>
+      <div class="px-vote-sub">login with telegram to cast your vote.<br>5 votes remove the artwork.</div>
+      <div id="pxTgWidget"></div>
+      <div class="px-vote-status" id="pxVoteStatus"></div>
+    </div>
   </div>
 </div>
 
@@ -484,10 +494,18 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 /* MODAL */
 .px-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;}
 .px-modal.open{display:flex;}
-.px-modal-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.px-modal-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(360px,90vw);}
 .px-modal canvas{image-rendering:pixelated;border-radius:16px;border:0.5px solid rgba(255,255,255,0.12);width:min(320px,80vw);height:min(320px,80vw);}
-.px-modal-close{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
-.px-modal-close:hover{color:rgba(255,255,255,0.8);}
+.px-modal-actions{display:flex;gap:24px;align-items:center;}
+.px-modal-close,.px-modal-flag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
+.px-modal-close{color:rgba(255,255,255,0.35);}.px-modal-close:hover{color:rgba(255,255,255,0.8);}
+.px-modal-flag{color:rgba(255,90,90,0.45);}.px-modal-flag:hover{color:rgba(255,90,90,0.85);}
+.px-vote-panel{background:rgba(14,14,14,0.98);border:0.5px solid rgba(255,255,255,0.08);border-radius:16px;padding:22px 24px;width:100%;display:flex;flex-direction:column;gap:12px;}
+.px-vote-title{font-family:'Space Grotesk',sans-serif;font-size:15px;color:rgba(255,255,255,0.75);font-weight:400;}
+.px-vote-sub{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.02em;line-height:1.7;}
+.px-vote-status{font-size:11px;letter-spacing:0.08em;min-height:14px;}
+.px-vote-status.ok{color:rgba(150,218,160,0.7);}
+.px-vote-status.err{color:rgba(255,90,90,0.7);}
 
 /* tablet */
 @media(max-width:768px){
@@ -898,7 +916,10 @@ function startChangelogTW(){
   }
 
   // MODAL
+  let currentArtId = null;
+
   function openPxModal(data){
+    currentArtId = data.id;
     const mc=document.getElementById('pxModalCanvas');
     mc.width=data.w||30;mc.height=data.h||30;
     const cx=mc.getContext('2d');
@@ -908,15 +929,80 @@ function startChangelogTW(){
       const x=i%mc.width,y=Math.floor(i/mc.width);
       cx.fillStyle=col;cx.fillRect(x,y,1,1);
     });
+    // Reset vote panel
+    document.getElementById('pxVotePanel').style.display='none';
+    document.getElementById('pxVoteStatus').textContent='';
+    document.getElementById('pxVoteStatus').className='px-vote-status';
+    document.getElementById('pxTgWidget').innerHTML='';
     document.getElementById('pxModal').classList.add('open');
   }
-  window.closePxModal=()=>document.getElementById('pxModal').classList.remove('open');
+
+  window.closePxModal=()=>{
+    document.getElementById('pxModal').classList.remove('open');
+    document.getElementById('pxVotePanel').style.display='none';
+    document.getElementById('pxTgWidget').innerHTML='';
+    currentArtId=null;
+  };
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closePxModal();});
+
+  // Flag button — show vote panel with TG widget
+  document.getElementById('pxFlagBtn').onclick=()=>{
+    const panel=document.getElementById('pxVotePanel');
+    if(panel.style.display==='none'){
+      panel.style.display='flex';
+      // Render Telegram Login Widget
+      const w=document.getElementById('pxTgWidget');
+      w.innerHTML='';
+      const s=document.createElement('script');
+      s.src='https://telegram.org/js/telegram-widget.js?22';
+      s.setAttribute('data-telegram-login','smthisbot');
+      s.setAttribute('data-size','medium');
+      s.setAttribute('data-radius','8');
+      s.setAttribute('data-onauth','onTelegramAuth(user)');
+      s.setAttribute('data-request-access','write');
+      s.async=true;
+      w.appendChild(s);
+    } else {
+      panel.style.display='none';
+    }
+  };
+
+  // Called by Telegram widget after login
+  window.onTelegramAuth=async function(user){
+    const st=document.getElementById('pxVoteStatus');
+    if(!currentArtId){st.className='px-vote-status err';st.textContent='// error: no art selected';return;}
+    st.className='px-vote-status';st.textContent='submitting vote...';
+    try{
+      const res=await fetch('/api/vote',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pixelId:currentArtId,tgData:user})
+      });
+      const data=await res.json();
+      if(res.status===409){
+        st.className='px-vote-status err';st.textContent='// already voted';
+      } else if(res.status===401){
+        st.className='px-vote-status err';st.textContent='// auth failed';
+      } else if(!res.ok){
+        st.className='px-vote-status err';st.textContent='// error, try again';
+      } else if(data.deleted){
+        st.className='px-vote-status ok';st.textContent='// artwork removed';
+        setTimeout(()=>{closePxModal();loadGallery();},1200);
+      } else {
+        st.className='px-vote-status ok';st.textContent=`// vote recorded (${data.count}/5)`;
+      }
+    }catch{
+      st.className='px-vote-status err';st.textContent='// error, try again';
+    }
+  };
 
   // GALLERY
   function renderArt(data){
+    const wrap=document.createElement('div');
+    wrap.style.cssText='position:relative;cursor:pointer;';
     const c=document.createElement('canvas');
     c.width=data.w||30;c.height=data.h||30;
+    c.style.cssText='width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);display:block;transition:border-color 0.2s,transform 0.15s;';
     const cx=c.getContext('2d');
     cx.fillStyle='#0e0e0e';cx.fillRect(0,0,c.width,c.height);
     (data.pixels||[]).forEach((col,i)=>{
@@ -924,8 +1010,11 @@ function startChangelogTW(){
       const x=i%c.width,y=Math.floor(i/c.width);
       cx.fillStyle=col;cx.fillRect(x,y,1,1);
     });
-    c.onclick=()=>openPxModal(data);
-    return c;
+    c.onmouseenter=()=>{c.style.borderColor='rgba(255,255,255,0.25)';c.style.transform='scale(1.04)';};
+    c.onmouseleave=()=>{c.style.borderColor='rgba(255,255,255,0.07)';c.style.transform='scale(1)';};
+    wrap.onclick=()=>openPxModal(data);
+    wrap.appendChild(c);
+    return wrap;
   }
 
   async function loadGallery(){
