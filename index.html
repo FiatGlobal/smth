@@ -425,7 +425,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <!-- Vote panel — shown after flag click -->
     <div class="px-vote-panel" id="pxVotePanel" style="display:none;">
       <div class="px-vote-title">flag for removal</div>
-      <div class="px-vote-sub">login with telegram to cast your vote.<br>5 votes remove the artwork.</div>
+      <div class="px-vote-sub" id="pxVoteSub">login with telegram to cast your vote.<br><span id="pxVoteCount" style="color:rgba(255,255,255,0.5);">loading votes...</span></div>
       <div id="pxTgWidget"></div>
       <div class="px-vote-status" id="pxVoteStatus"></div>
     </div>
@@ -463,6 +463,9 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
 .px-grid canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.15s;display:block;}
 .px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
+.px-art-flag{position:absolute;bottom:5px;right:5px;width:18px;height:18px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);border-radius:4px;padding:2px;}
+.px-art-flag svg{width:10px;height:10px;flex-shrink:0;}
+.px-art-wrap:hover .px-art-flag{opacity:1;}
 .px-gate-wrap{position:relative;}
 .px-gate-blur{filter:blur(18px);transition:filter 0.5s ease;pointer-events:none;user-select:none;}
 .px-gate-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;padding:12px;}
@@ -918,7 +921,7 @@ function startChangelogTW(){
   // MODAL
   let currentArtId = null;
 
-  function openPxModal(data){
+  function openPxModal(data, showFlag){
     currentArtId = data.id;
     const mc=document.getElementById('pxModalCanvas');
     mc.width=data.w||30;mc.height=data.h||30;
@@ -930,11 +933,27 @@ function startChangelogTW(){
       cx.fillStyle=col;cx.fillRect(x,y,1,1);
     });
     // Reset vote panel
-    document.getElementById('pxVotePanel').style.display='none';
+    const panel=document.getElementById('pxVotePanel');
+    panel.style.display='none';
     document.getElementById('pxVoteStatus').textContent='';
     document.getElementById('pxVoteStatus').className='px-vote-status';
     document.getElementById('pxTgWidget').innerHTML='';
+    document.getElementById('pxVoteCount').textContent='loading votes...';
     document.getElementById('pxModal').classList.add('open');
+    // If opened via flag icon — show panel immediately
+    if(showFlag){
+      setTimeout(()=>document.getElementById('pxFlagBtn').click(),50);
+    }
+    // Fetch current vote count
+    fetch(`/api/votecount?id=${data.id}`)
+      .then(r=>r.json())
+      .then(d=>{
+        const el=document.getElementById('pxVoteCount');
+        if(el) el.textContent=`${d.count||0} / 5 votes for removal`;
+      }).catch(()=>{
+        const el=document.getElementById('pxVoteCount');
+        if(el) el.textContent='5 votes remove the artwork';
+      });
   }
 
   window.closePxModal=()=>{
@@ -999,6 +1018,7 @@ function startChangelogTW(){
   // GALLERY
   function renderArt(data){
     const wrap=document.createElement('div');
+    wrap.className='px-art-wrap';
     wrap.style.cssText='position:relative;cursor:pointer;';
     const c=document.createElement('canvas');
     c.width=data.w||30;c.height=data.h||30;
@@ -1012,8 +1032,20 @@ function startChangelogTW(){
     });
     c.onmouseenter=()=>{c.style.borderColor='rgba(255,255,255,0.25)';c.style.transform='scale(1.04)';};
     c.onmouseleave=()=>{c.style.borderColor='rgba(255,255,255,0.07)';c.style.transform='scale(1)';};
-    wrap.onclick=()=>openPxModal(data);
+    // Flag icon — pixel flag SVG
+    const flag=document.createElement('div');
+    flag.className='px-art-flag';
+    flag.title='flag for removal';
+    flag.innerHTML=`<svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="1" width="1" height="8" fill="rgba(255,255,255,0.8)"/>
+      <rect x="3" y="1" width="5" height="1" fill="rgba(255,255,255,0.8)"/>
+      <rect x="3" y="4" width="5" height="1" fill="rgba(255,255,255,0.8)"/>
+      <rect x="7" y="2" width="1" height="2" fill="rgba(255,255,255,0.8)"/>
+    </svg>`;
+    flag.onclick=(e)=>{e.stopPropagation();openPxModal(data,true);};
+    c.onclick=()=>openPxModal(data,false);
     wrap.appendChild(c);
+    wrap.appendChild(flag);
     return wrap;
   }
 
