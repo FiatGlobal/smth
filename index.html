@@ -425,7 +425,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     </div>
     <!-- Vote panel — shown after flag click -->
     <div class="px-vote-panel" id="pxVotePanel" style="display:none;">
-      <div class="px-vote-title">flag for removal</div>
+      <div class="px-vote-title" id="pxVoteTitle">flag for removal</div>
       <div class="px-vote-sub" id="pxVoteSub">login with telegram to cast your vote.<br><span id="pxVoteCount" style="color:rgba(255,255,255,0.5);">loading votes...</span></div>
       <div id="pxTgWidget"></div>
       <div class="px-vote-status" id="pxVoteStatus"></div>
@@ -995,8 +995,16 @@ function startChangelogTW(){
     const panel=document.getElementById('pxVotePanel');
     if(panel.style.display==='none'){
       panel.style.display='flex';
+      likeMode=false;
+      // Switch panel text to flag mode
+      document.getElementById('pxVoteTitle').textContent='flag for removal';
+      document.getElementById('pxVoteSub').innerHTML='login with telegram to cast your vote.<br><span id="pxVoteCount" style="color:rgba(255,255,255,0.5);">loading...</span>';
+      // Fetch current vote count
+      if(currentArtId) fetch(`/api/votecount?id=${currentArtId}`).then(r=>r.json()).then(d=>{
+        const el=document.getElementById('pxVoteCount');
+        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} votes for removal${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
+      }).catch(()=>{});
       const w=document.getElementById('pxTgWidget');
-      w.innerHTML='';
       const s=document.createElement('script');
       s.src='https://telegram.org/js/telegram-widget.js?22';
       s.setAttribute('data-telegram-login','smthisbot');
@@ -1017,6 +1025,9 @@ function startChangelogTW(){
     likeMode=true;
     const panel=document.getElementById('pxVotePanel');
     panel.style.display='flex';
+    // Switch panel text to like mode
+    document.getElementById('pxVoteTitle').textContent='like this artwork';
+    document.getElementById('pxVoteSub').innerHTML='login with telegram to like.<br><span style="color:rgba(255,255,255,0.5);">your like protects it from removal.</span>';
     const w=document.getElementById('pxTgWidget');
     w.innerHTML='';
     const s=document.createElement('script');
