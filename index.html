@@ -420,6 +420,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <canvas id="pxModalCanvas" width="30" height="30"></canvas>
     <div class="px-modal-actions">
       <span class="px-modal-close" onclick="closePxModal()">// close</span>
+      <span class="px-modal-like" id="pxModalLike">♡ <span id="pxModalLikeCount">0</span></span>
       <span class="px-modal-flag" id="pxFlagBtn">// flag</span>
     </div>
     <!-- Vote panel — shown after flag click -->
@@ -465,7 +466,10 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
 .px-art-flag{position:absolute;bottom:5px;right:5px;width:22px;height:22px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);border-radius:5px;padding:3px;}
 .px-art-flag svg{width:14px;height:14px;flex-shrink:0;}
-.px-art-wrap:hover .px-art-flag{opacity:1;}
+.px-art-like{position:absolute;bottom:5px;left:5px;width:22px;height:22px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);border-radius:5px;padding:3px;}
+.px-art-like svg{width:12px;height:12px;flex-shrink:0;}
+.px-art-like.liked{opacity:1!important;background:rgba(220,60,80,0.25);}
+.px-art-wrap:hover .px-art-flag,.px-art-wrap:hover .px-art-like{opacity:1;}
 .px-gate-wrap{position:relative;}
 .px-gate-blur{filter:blur(18px);transition:filter 0.5s ease;pointer-events:none;user-select:none;}
 .px-gate-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;padding:12px;}
@@ -500,9 +504,11 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-modal-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(360px,90vw);}
 .px-modal canvas{image-rendering:pixelated;border-radius:16px;border:0.5px solid rgba(255,255,255,0.12);width:min(320px,80vw);height:min(320px,80vw);}
 .px-modal-actions{display:flex;gap:24px;align-items:center;}
-.px-modal-close,.px-modal-flag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
+.px-modal-close,.px-modal-flag,.px-modal-like{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
 .px-modal-close{color:rgba(255,255,255,0.35);}.px-modal-close:hover{color:rgba(255,255,255,0.8);}
 .px-modal-flag{color:rgba(255,90,90,0.45);}.px-modal-flag:hover{color:rgba(255,90,90,0.85);}
+.px-modal-like{color:rgba(255,255,255,0.35);}.px-modal-like:hover{color:rgba(220,60,80,0.85);}
+.px-modal-like.liked{color:rgba(220,60,80,0.85);}
 .px-vote-panel{background:rgba(14,14,14,0.98);border:0.5px solid rgba(255,255,255,0.08);border-radius:16px;padding:22px 24px;width:100%;display:flex;flex-direction:column;gap:12px;}
 .px-vote-title{font-family:'Space Grotesk',sans-serif;font-size:15px;color:rgba(255,255,255,0.75);font-weight:400;}
 .px-vote-sub{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.02em;line-height:1.7;}
@@ -938,18 +944,22 @@ function startChangelogTW(){
     document.getElementById('pxVoteStatus').textContent='';
     document.getElementById('pxVoteStatus').className='px-vote-status';
     document.getElementById('pxTgWidget').innerHTML='';
-    document.getElementById('pxVoteCount').textContent='loading votes...';
+    document.getElementById('pxVoteCount').textContent='loading...';
+    document.getElementById('pxModalLikeCount').textContent='0';
+    document.getElementById('pxModalLike').className='px-modal-like';
     document.getElementById('pxModal').classList.add('open');
     // If opened via flag icon — show panel immediately
     if(showFlag){
       setTimeout(()=>document.getElementById('pxFlagBtn').click(),50);
     }
-    // Fetch current vote count
+    // Fetch vote count, likes, threshold
     fetch(`/api/votecount?id=${data.id}`)
       .then(r=>r.json())
       .then(d=>{
         const el=document.getElementById('pxVoteCount');
-        if(el) el.textContent=`${d.count||0} / 5 votes for removal`;
+        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} votes for removal${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
+        const likeEl=document.getElementById('pxModalLikeCount');
+        if(likeEl) likeEl.textContent=d.likes||0;
       }).catch(()=>{
         const el=document.getElementById('pxVoteCount');
         if(el) el.textContent='5 votes remove the artwork';
@@ -969,7 +979,6 @@ function startChangelogTW(){
     const panel=document.getElementById('pxVotePanel');
     if(panel.style.display==='none'){
       panel.style.display='flex';
-      // Render Telegram Login Widget
       const w=document.getElementById('pxTgWidget');
       w.innerHTML='';
       const s=document.createElement('script');
@@ -986,10 +995,61 @@ function startChangelogTW(){
     }
   };
 
-  // Called by Telegram widget after login
+  // Like button in modal — opens TG widget for like
+  let likeMode=false;
+  document.getElementById('pxModalLike').onclick=()=>{
+    likeMode=true;
+    const panel=document.getElementById('pxVotePanel');
+    panel.style.display='flex';
+    const w=document.getElementById('pxTgWidget');
+    w.innerHTML='';
+    const s=document.createElement('script');
+    s.src='https://telegram.org/js/telegram-widget.js?22';
+    s.setAttribute('data-telegram-login','smthisbot');
+    s.setAttribute('data-size','medium');
+    s.setAttribute('data-radius','8');
+    s.setAttribute('data-onauth','onTelegramAuth(user)');
+    s.setAttribute('data-request-access','write');
+    s.async=true;
+    w.appendChild(s);
+  };
+
+  // Called by Telegram widget — handles both like and vote
   window.onTelegramAuth=async function(user){
     const st=document.getElementById('pxVoteStatus');
     if(!currentArtId){st.className='px-vote-status err';st.textContent='// error: no art selected';return;}
+
+    if(likeMode){
+      likeMode=false;
+      st.className='px-vote-status';st.textContent='saving...';
+      try{
+        const res=await fetch('/api/like',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({pixelId:currentArtId,tgData:user})
+        });
+        const d=await res.json();
+        if(!res.ok){st.className='px-vote-status err';st.textContent='// error';return;}
+        const likeBtn=document.getElementById('pxModalLike');
+        const likeCount=document.getElementById('pxModalLikeCount');
+        likeBtn.className='px-modal-like'+(d.liked?' liked':'');
+        likeBtn.innerHTML=(d.liked?'♥':'♡')+' <span id="pxModalLikeCount">'+d.count+'</span>';
+        st.className='px-vote-status ok';
+        st.textContent=d.liked?'// liked!':'// like removed';
+        // Refresh threshold display
+        fetch(`/api/votecount?id=${currentArtId}`).then(r=>r.json()).then(vd=>{
+          const el=document.getElementById('pxVoteCount');
+          if(el) el.textContent=`${vd.count||0} / ${vd.threshold||5} votes for removal${vd.likes>=5?' (protected by '+vd.likes+' likes)':''}`;
+        });
+        // Hide panel after like
+        setTimeout(()=>{document.getElementById('pxVotePanel').style.display='none';st.textContent='';},1500);
+      }catch{
+        st.className='px-vote-status err';st.textContent='// error, try again';
+      }
+      return;
+    }
+
+    // Vote flow
     st.className='px-vote-status';st.textContent='submitting vote...';
     try{
       const res=await fetch('/api/vote',{
@@ -997,18 +1057,20 @@ function startChangelogTW(){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({pixelId:currentArtId,tgData:user})
       });
-      const data=await res.json();
+      const d=await res.json();
       if(res.status===409){
         st.className='px-vote-status err';st.textContent='// already voted';
       } else if(res.status===401){
         st.className='px-vote-status err';st.textContent='// auth failed';
       } else if(!res.ok){
         st.className='px-vote-status err';st.textContent='// error, try again';
-      } else if(data.deleted){
+      } else if(d.deleted){
         st.className='px-vote-status ok';st.textContent='// artwork removed';
         setTimeout(()=>{closePxModal();loadGallery();},1200);
       } else {
-        st.className='px-vote-status ok';st.textContent=`// vote recorded (${data.count}/5)`;
+        st.className='px-vote-status ok';st.textContent=`// vote recorded (${d.count}/${d.threshold})`;
+        const el=document.getElementById('pxVoteCount');
+        if(el) el.textContent=`${d.count} / ${d.threshold} votes for removal`;
       }
     }catch{
       st.className='px-vote-status err';st.textContent='// error, try again';
@@ -1040,9 +1102,16 @@ function startChangelogTW(){
       <rect x="2" y="1" width="1.5" height="10" fill="rgba(255,255,255,0.9)" rx="0.5"/>
       <path d="M3.5 1.5 L10.5 1.5 L10.5 6.5 L3.5 6.5 Z" fill="rgba(220,60,60,0.95)"/>
     </svg>`;
+    // Heart icon
+    const heart=document.createElement('div');
+    heart.className='px-art-like';
+    heart.title='like';
+    heart.innerHTML=`<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5S1 7 1 3.8C1 2.3 2.1 1 3.5 1c.8 0 1.9.6 2.5 1.5C6.6 1.6 7.7 1 8.5 1 9.9 1 11 2.3 11 3.8 11 7 6 10.5 6 10.5z" stroke="rgba(255,255,255,0.7)" stroke-width="1" fill="none"/></svg>`;
+    heart.onclick=(e)=>{e.stopPropagation();openPxModal(data,false);setTimeout(()=>{document.getElementById('pxModalLike').click();},100);};
     flag.onclick=(e)=>{e.stopPropagation();openPxModal(data,true);};
     c.onclick=()=>openPxModal(data,false);
     wrap.appendChild(c);
+    wrap.appendChild(heart);
     wrap.appendChild(flag);
     return wrap;
   }
