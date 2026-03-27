@@ -52,9 +52,9 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .tw-fade{opacity:0;transition:opacity 0.9s ease;}
 .tw-fade.show{opacity:1;}
 .rule{display:inline-block;width:40px;height:1px;background:rgba(255,255,255,0.18);vertical-align:middle;margin-right:14px;}
-.slabel{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.25);margin-bottom:32px;display:flex;align-items:center;gap:12px;}
-.slabel .cmt{color:rgba(255,255,255,0.14);}
-.slabel::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.07);}
+.slabel{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:32px;display:flex;align-items:center;gap:12px;}
+.slabel .cmt{color:rgba(255,255,255,0.28);}
+.slabel::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.1);}
 .c-kw{color:rgba(130,180,255,0.55);}
 .c-dim{color:rgba(255,255,255,0.14);}
 .c-b{color:rgba(130,160,255,0.4);}
@@ -436,9 +436,9 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <style>
 .px-section{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:52px 0 60px;}
 .px-wrap{max-width:800px;margin:0 auto;padding:0 48px;}
-.px-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.22);margin-bottom:28px;display:flex;align-items:center;gap:10px;}
-.px-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.06);}
-.px-label .cmt{color:rgba(255,255,255,0.1);}
+.px-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:28px;display:flex;align-items:center;gap:10px;}
+.px-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.1);}
+.px-label .cmt{color:rgba(255,255,255,0.28);}
 .px-editor-wrap{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start;margin-bottom:48px;}
 .px-canvas-wrap{position:relative;}
 #pxCanvas{cursor:crosshair;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.1);display:block;width:min(300px,72vw);height:min(300px,72vw);}
@@ -456,10 +456,10 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-status{font-size:10px;letter-spacing:0.08em;min-height:14px;transition:opacity 0.3s;}
 .px-status.ok{color:rgba(150,218,160,0.7);}
 .px-status.err{color:rgba(255,90,90,0.7);}
-.px-gallery-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.22);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.px-gallery-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.06);}
-.px-gallery-label .cmt{color:rgba(255,255,255,0.1);}
-.px-disclaimer{font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.04em;line-height:1.7;margin-bottom:20px;}
+.px-gallery-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.px-gallery-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.1);}
+.px-gallery-label .cmt{color:rgba(255,255,255,0.28);}
+.px-disclaimer{font-size:11px;color:rgba(255,255,255,0.38);letter-spacing:0.03em;line-height:1.7;margin-bottom:20px;}
 .px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
 .px-grid canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.15s;display:block;}
 .px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
@@ -563,8 +563,8 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     </div>
 
     <!-- GALLERY below -->
-    <div class="px-gallery-label"><span class="cmt">// </span>community art</div>
-    <div class="px-disclaimer">all artworks are free — no censorship, no rules, any content is allowed. the only limit is pixel count.</div>
+    <div class="px-gallery-label"><span class="cmt">// </span>community_art</div>
+    <div class="px-disclaimer">pixel chaos — drawn by humans, judged by humans. flag what breaks the vibe.</div>
     <div id="pxEmptyState" style="display:block;">
       <div class="px-empty">no art yet. be the first.</div>
     </div>
