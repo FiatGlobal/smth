@@ -1,6 +1,8 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
 export const config = { runtime: 'edge' };
+
+const redis = Redis.fromEnv();
 
 const HEADERS = {
   'Content-Type': 'application/json',
@@ -20,12 +22,9 @@ export default async function handler(req) {
       const id = Date.now().toString();
       const entry = { id, pixels, w: w || 30, h: h || 30, ts: Date.now() };
 
-      // Store individual entry
-      await kv.set(`px:${id}`, JSON.stringify(entry));
-      // Add to sorted set by timestamp
-      await kv.zadd('px:list', { score: Date.now(), member: id });
-      // Keep only latest 200
-      await kv.zremrangebyrank('px:list', 0, -201);
+      await redis.set(`px:${id}`, JSON.stringify(entry));
+      await redis.zadd('px:list', { score: Date.now(), member: id });
+      await redis.zremrangebyrank('px:list', 0, -201);
 
       return new Response(JSON.stringify({ ok: true, id }), { headers: HEADERS });
     } catch (e) {
@@ -35,14 +34,13 @@ export default async function handler(req) {
 
   if (req.method === 'GET') {
     try {
-      // Get latest 100 IDs
-      const ids = await kv.zrange('px:list', 0, 99, { rev: true });
+      const ids = await redis.zrange('px:list', 0, 99, { rev: true });
       if (!ids || ids.length === 0) {
         return new Response(JSON.stringify([]), { headers: HEADERS });
       }
 
       const items = await Promise.all(
-        ids.map(id => kv.get(`px:${id}`))
+        ids.map(id => redis.get(`px:${id}`))
       );
 
       const parsed = items
