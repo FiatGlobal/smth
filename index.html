@@ -453,6 +453,16 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
 .px-grid canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.15s;display:block;}
 .px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
+/* BLUR GATE */
+.px-gate-wrap{position:relative;}
+.px-gate-blur{filter:blur(18px);transition:filter 0.5s ease;pointer-events:none;user-select:none;}
+.px-gate-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;}
+.px-gate-box{background:rgba(20,10,10,0.72);backdrop-filter:blur(2px);border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:260px;text-align:center;}
+.px-gate-icon{width:44px;height:44px;opacity:0.7;}
+.px-gate-title{font-family:'Space Grotesk',sans-serif;font-weight:400;font-size:17px;color:rgba(255,255,255,0.88);letter-spacing:-0.01em;}
+.px-gate-sub{font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:0.02em;line-height:1.6;}
+.px-gate-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.18);border-radius:10px;padding:9px 24px;cursor:pointer;margin-top:4px;transition:background 0.2s,color 0.2s;}
+.px-gate-btn:hover{background:rgba(255,255,255,0.14);color:#fff;}
 .px-empty{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;padding:16px 0;}
 /* MODAL */
 .px-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;}
@@ -521,7 +531,19 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
       <div class="px-empty">no art yet. be the first.</div>
     </div>
     <div id="pxGallerySection" style="display:none;">
-      <div class="px-grid" id="pxGallery"></div>
+      <div class="px-gate-wrap" id="pxGateWrap">
+        <div class="px-grid px-gate-blur" id="pxGallery"></div>
+        <div class="px-gate-overlay" id="pxGateOverlay">
+          <div class="px-gate-box">
+            <svg class="px-gate-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="px-gate-title">sensitive content</div>
+            <div class="px-gate-sub">community art is unmoderated and may contain any content</div>
+            <div class="px-gate-btn" onclick="revealGallery()">reveal</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -846,6 +868,17 @@ function startChangelogTW(){
     }
     setTimeout(()=>{st.textContent='';},3000);
   };
+
+  // BLUR GATE
+  function revealGallery(){
+    const grid=document.getElementById('pxGallery');
+    const overlay=document.getElementById('pxGateOverlay');
+    if(grid)grid.classList.remove('px-gate-blur');
+    if(overlay){overlay.style.transition='opacity 0.4s';overlay.style.opacity='0';setTimeout(()=>overlay.style.display='none',400);}
+    try{localStorage.setItem('px_revealed','1');}catch(e){}
+  }
+  // Check if already revealed
+  try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
 
   // MODAL
   function openPxModal(data){
