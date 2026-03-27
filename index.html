@@ -414,6 +414,14 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 </div></div>
 
+<!-- PIXEL MODAL -->
+<div class="px-modal" id="pxModal" onclick="closePxModal()">
+  <div class="px-modal-inner" onclick="event.stopPropagation()">
+    <canvas id="pxModalCanvas" width="30" height="30"></canvas>
+    <span class="px-modal-close" onclick="closePxModal()">// close</span>
+  </div>
+</div>
+
 <!-- PIXEL WALL -->
 <style>
 .px-section{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:52px 0 60px;}
@@ -442,10 +450,17 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-gallery-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.06);}
 .px-gallery-label .cmt{color:rgba(255,255,255,0.1);}
 .px-gallery-wrap{overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);}
-.px-gallery{display:flex;gap:8px;animation:pxScroll 40s linear infinite;width:max-content;}
+.px-gallery{display:flex;gap:12px;animation:pxScroll 40s linear infinite;width:max-content;}
 .px-gallery:hover{animation-play-state:paused;}
-.px-gallery canvas{width:60px;height:60px;image-rendering:pixelated;border-radius:8px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s;flex-shrink:0;}
-.px-gallery canvas:hover{border-color:rgba(255,255,255,0.2);}
+.px-gallery canvas{width:96px;height:96px;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.2s;flex-shrink:0;}
+.px-gallery canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.05);}
+/* MODAL */
+.px-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;}
+.px-modal.open{display:flex;}
+.px-modal-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.px-modal canvas{image-rendering:pixelated;border-radius:16px;border:0.5px solid rgba(255,255,255,0.12);width:min(320px,80vw);height:min(320px,80vw);}
+.px-modal-close{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
+.px-modal-close:hover{color:rgba(255,255,255,0.8);}
 .px-empty{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;padding:16px 0;}
 @keyframes pxScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
@@ -466,7 +481,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
   .px-colors{gap:6px;justify-content:center;}
   .px-color{width:26px;height:26px;border-radius:6px;}
   .px-hint{display:none;}
-  .px-gallery canvas{width:52px;height:52px;}
+  .px-gallery canvas{width:76px;height:76px;}
 }
 
 /* small mobile */
@@ -817,16 +832,38 @@ function startChangelogTW(){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({pixels,w:W,h:H})
       });
-      if(!res.ok)throw new Error();
-      st.className='px-status ok';st.textContent='// published!';
-      pixels=new Array(W*H).fill(null);
-      ctx.fillStyle='#0e0e0e';ctx.fillRect(0,0,W,H);
-      setTimeout(loadGallery,800);
+      const data=await res.json();
+      if(res.status===429){
+        st.className='px-status err';st.textContent='// max 2 artworks per hour';
+      } else if(!res.ok){
+        st.className='px-status err';st.textContent='// error, try again';
+      } else {
+        st.className='px-status ok';st.textContent='// published!';
+        pixels=new Array(W*H).fill(null);
+        ctx.fillStyle='#0e0e0e';ctx.fillRect(0,0,W,H);
+        setTimeout(loadGallery,800);
+      }
     }catch{
       st.className='px-status err';st.textContent='// error, try again';
     }
     setTimeout(()=>{st.textContent='';},3000);
   };
+
+  // MODAL
+  function openPxModal(data){
+    const mc=document.getElementById('pxModalCanvas');
+    mc.width=data.w||30;mc.height=data.h||30;
+    const cx=mc.getContext('2d');
+    cx.fillStyle='#0e0e0e';cx.fillRect(0,0,mc.width,mc.height);
+    (data.pixels||[]).forEach((col,i)=>{
+      if(!col)return;
+      const x=i%mc.width,y=Math.floor(i/mc.width);
+      cx.fillStyle=col;cx.fillRect(x,y,1,1);
+    });
+    document.getElementById('pxModal').classList.add('open');
+  }
+  window.closePxModal=()=>document.getElementById('pxModal').classList.remove('open');
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closePxModal();});
 
   // GALLERY
   function renderArt(data){
@@ -839,6 +876,7 @@ function startChangelogTW(){
       const x=i%c.width,y=Math.floor(i/c.width);
       cx.fillStyle=col;cx.fillRect(x,y,1,1);
     });
+    c.onclick=()=>openPxModal(data);
     return c;
   }
 
@@ -857,12 +895,16 @@ function startChangelogTW(){
       if(emptyState)emptyState.style.display='none';
       if(gallerySection)gallerySection.style.display='block';
       gal.innerHTML='';
-      const all=[...items,...items];
-      all.forEach(item=>{
+      // Only duplicate if enough items to fill scroll, otherwise just show once
+      const toRender=items.length>=6?[...items,...items]:items;
+      toRender.forEach(item=>{
         const c=renderArt(item);
         gal.appendChild(c);
       });
-      const dur=Math.max(20,items.length*4);
+      // Pause animation if not enough to scroll
+      if(items.length<6) gal.style.animationPlayState='paused';
+      else gal.style.animationPlayState='running';
+      const dur=Math.max(20,items.length*5);
       gal.style.animationDuration=dur+'s';
     }catch(e){console.log('gallery err',e);}
   }
