@@ -708,9 +708,10 @@ function showPixel(push){
   document.getElementById('pixelPage').classList.add('active');
   if(push!==false) history.pushState({},'','/pixel');
   document.title='pixel_wall — smth.is';
+  // Init pixel wall JS on first visit
+  setTimeout(initPixelWall, 50);
   if(pixelShownOnce){
     document.getElementById('pxPageTitle').innerHTML='<span class="br">pixel</span><span style="color:rgba(255,255,255,0.12)">_wall.</span>';
-    ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('tw-fade');el.style.opacity='1';}});
     return;
   }
   pixelShownOnce=true;
@@ -718,14 +719,12 @@ function showPixel(push){
   cp.style.opacity='0';cp.style.transform='translateY(12px)';
   setTimeout(()=>{cp.style.transition='opacity 0.45s,transform 0.45s';cp.style.opacity='1';cp.style.transform='none';},20);
   document.getElementById('pxPageTitle').innerHTML='';
-  ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.add('tw-fade');el.style.opacity='';}});
-  // Typewriter
   const el=document.getElementById('pxPageTitle');
   const full='pixel_wall.';const brightEnd=5;
   const cur=document.createElement('span');cur.className='cl-tw-cursor';el.appendChild(cur);
   let i=0;
   function tick(){
-    if(i>=full.length){cur.remove();['pxPageSub'].forEach((id,j)=>{setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('show');},j*160);});return;}
+    if(i>=full.length){cur.remove();return;}
     const sp=document.createElement('span');sp.textContent=full[i];
     if(i<brightEnd)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
     el.insertBefore(sp,cur);i++;setTimeout(tick,Math.random()*55+38);
@@ -938,6 +937,10 @@ function startChangelogTW(){
   setTimeout(tick,200);
 })();
 /* ═══════════════ PIXEL WALL ═══════════════ */
+let pixelWallInited=false;
+function initPixelWall(){
+  if(pixelWallInited)return;
+  pixelWallInited=true;
 (function(){
   const COLS=['#f0f0f0','#c8c8c8','#888888','#444444','#111111',
     '#e05252','#e07a52','#e0c252','#52c25e','#5290e0','#9452e0','#e052b8',
@@ -1309,6 +1312,7 @@ function startChangelogTW(){
   }
   loadGallery();
 })();
+} // end initPixelWall
 
 /* Scrolling browser tab title */
 (function(){
