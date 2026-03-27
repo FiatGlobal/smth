@@ -452,7 +452,9 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-btn:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.18);}
 .px-btn.primary{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.2);}
 .px-btn.primary:hover{color:#fff;border-color:rgba(255,255,255,0.45);}
-.px-hint{font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.04em;line-height:1.9;}
+.px-disclaimer{font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:0.01em;line-height:1.8;margin-bottom:24px;font-family:'JetBrains Mono',monospace;}
+.px-disclaimer-hl{color:rgba(255,255,255,0.65);}
+.px-hint{font-size:11px;color:rgba(255,255,255,0.28);letter-spacing:0.03em;line-height:2;font-family:'JetBrains Mono',monospace;}
 .px-size-info{font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.1em;margin-top:5px;}
 .px-status{font-size:10px;letter-spacing:0.08em;min-height:14px;transition:opacity 0.3s;}
 .px-status.ok{color:rgba(150,218,160,0.7);}
@@ -548,7 +550,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 <section class="px-section tw-fade" id="pxSection">
   <div class="px-wrap">
-    <div class="px-label"><span class="cmt">// </span>pixel_wall — draw smth</div>
+    <div class="px-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">pixel_wall</span> — draw smth</div>
 
     <!-- EDITOR first -->
     <div class="px-editor-wrap">
@@ -565,40 +567,47 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
         <div class="px-tool-row">
           <span class="px-btn primary" id="pxSubmit">publish →</span>
         </div>
-        <div class="px-hint">draw anything.<br>it will appear below.<br>community decides what stays.</div>
+        <div class="px-hint"><span style="color:rgba(255,255,255,0.55)">draw anything.</span><br>it will appear below.<br><span style="color:rgba(255,255,255,0.45)">community decides</span> what stays.</div>
         <div class="px-status" id="pxStatus"></div>
       </div>
     </div>
 
     <!-- GALLERY below -->
-    <div class="px-gallery-label"><span class="cmt">// </span>community_art</div>
-    <div class="px-disclaimer">pixel chaos — drawn by humans, judged by humans. flag what breaks the vibe.</div>
+    <div class="px-gallery-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">community_art</span></div>
+    <div class="px-disclaimer"><span class="px-disclaimer-hl">pixel chaos</span> — drawn by humans, judged by humans.<br>flag what breaks the vibe.</div>
 
-    <!-- MOST LIKED -->
-    <div id="pxLikedSection" style="display:none;margin-bottom:32px;">
-      <div class="px-gallery-sublabel"><span class="cmt">// </span>most_liked</div>
-      <div class="px-grid" id="pxLikedGallery"></div>
-    </div>
+    <!-- GATE wraps BOTH sections -->
+    <div class="px-gate-wrap" id="pxGateWrap">
 
-    <!-- NEW -->
-    <div id="pxEmptyState" style="display:block;">
-      <div class="px-empty">no art yet. be the first.</div>
-    </div>
-    <div id="pxGallerySection" style="display:none;">
-      <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
-      <div class="px-gate-wrap" id="pxGateWrap">
-        <div class="px-grid px-gate-blur" id="pxGallery"></div>
-        <div class="px-gate-overlay" id="pxGateOverlay">
-          <div class="px-gate-box">
-            <svg class="px-gate-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div class="px-gate-info">
-              <div class="px-gate-title">sensitive content</div>
-              <div class="px-gate-sub">unmoderated — may contain any content</div>
-            </div>
-            <span class="px-gate-btn" id="pxRevealBtn">reveal</span>
+      <!-- blur layer covers both grids -->
+      <div id="pxAllGalleries">
+        <!-- MOST LIKED -->
+        <div id="pxLikedSection" style="display:none;margin-bottom:32px;">
+          <div class="px-gallery-sublabel"><span class="cmt">// </span>most_liked</div>
+          <div class="px-grid" id="pxLikedGallery"></div>
+        </div>
+
+        <!-- NEW -->
+        <div id="pxEmptyState" style="display:block;">
+          <div class="px-empty">no art yet. be the first.</div>
+        </div>
+        <div id="pxGallerySection" style="display:none;">
+          <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
+          <div class="px-grid" id="pxGallery"></div>
+        </div>
+      </div>
+
+      <!-- overlay -->
+      <div class="px-gate-overlay" id="pxGateOverlay">
+        <div class="px-gate-box">
+          <svg class="px-gate-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="px-gate-info">
+            <div class="px-gate-title">sensitive content</div>
+            <div class="px-gate-sub">unmoderated — may contain any content</div>
           </div>
+          <span class="px-gate-btn" id="pxRevealBtn">reveal</span>
         </div>
       </div>
     </div>
@@ -933,9 +942,9 @@ function startChangelogTW(){
 
   // BLUR GATE
   function revealGallery(){
-    const grid=document.getElementById('pxGallery');
+    const all=document.getElementById('pxAllGalleries');
     const overlay=document.getElementById('pxGateOverlay');
-    if(grid)grid.classList.remove('px-gate-blur');
+    if(all)all.classList.remove('px-gate-blur');
     if(overlay){overlay.style.transition='opacity 0.4s';overlay.style.opacity='0';setTimeout(()=>{overlay.style.display='none';},400);}
     try{localStorage.setItem('px_revealed','1');}catch(e){}
   }
@@ -1162,9 +1171,12 @@ function startChangelogTW(){
       } else {
         if(emptyState)emptyState.style.display='none';
         if(gallerySection)gallerySection.style.display='block';
-        const revBtn=document.getElementById('pxRevealBtn');
-        if(revBtn)revBtn.onclick=revealGallery;
-        try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
+      // Wire reveal
+      const revBtn=document.getElementById('pxRevealBtn');
+      if(revBtn)revBtn.onclick=revealGallery;
+      const allGal=document.getElementById('pxAllGalleries');
+      if(allGal&&!localStorage.getItem('px_revealed')) allGal.classList.add('px-gate-blur');
+      try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
         gal.innerHTML='';
         items.forEach(item=>gal.appendChild(renderArt(item)));
       }
