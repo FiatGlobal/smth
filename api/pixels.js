@@ -1,31 +1,32 @@
-import { Redis } from '@upstash/redis';
-
 export const config = { runtime: 'edge' };
-
-const redis = Redis.fromEnv();
 
 const HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
 };
 
+async function redis(cmd) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const res = await fetch(`${url}/${cmd.map(encodeURIComponent).join('/')}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
 export default async function handler(req) {
   if (req.method === 'POST') {
     try {
       const body = await req.json();
       const { pixels, w, h } = body;
-
       if (!pixels || !Array.isArray(pixels)) {
         return new Response(JSON.stringify({ error: 'invalid' }), { status: 400, headers: HEADERS });
       }
-
       const id = Date.now().toString();
-      const entry = { id, pixels, w: w || 30, h: h || 30, ts: Date.now() };
-
-      await redis.set(`px:${id}`, JSON.stringify(entry));
-      await redis.zadd('px:list', { score: Date.now(), member: id });
-      await redis.zremrangebyrank('px:list', 0, -201);
-
+      const entry = JSON.stringify({ id, pixels, w: w || 30, h: h || 30, ts: Date.now() });
+      await redis(['SET', `px:${id}`, entry]);
+      await redis(['ZADD', 'px:list', Date.now().toString(), id]);
+      await redis(['ZREMRANGEBYRANK', 'px:list', '0', '-201']);
       return new Response(JSON.stringify({ ok: true, id }), { headers: HEADERS });
     } catch (e) {
       return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: HEADERS });
@@ -34,19 +35,17 @@ export default async function handler(req) {
 
   if (req.method === 'GET') {
     try {
-      const ids = await redis.zrange('px:list', 0, 99, { rev: true });
+      const idsRes = await redis(['ZRANGE', 'px:list', '0', '99', 'REV']);
+      const ids = idsRes.result;
       if (!ids || ids.length === 0) {
         return new Response(JSON.stringify([]), { headers: HEADERS });
       }
-
       const items = await Promise.all(
-        ids.map(id => redis.get(`px:${id}`))
+        ids.map(id => redis(['GET', `px:${id}`]).then(r => r.result))
       );
-
       const parsed = items
         .filter(Boolean)
         .map(item => typeof item === 'string' ? JSON.parse(item) : item);
-
       return new Response(JSON.stringify(parsed), {
         headers: { ...HEADERS, 'Cache-Control': 's-maxage=30' }
       });
