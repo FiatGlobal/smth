@@ -5,13 +5,18 @@ const HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
-async function redisCmd(cmd) {
+async function redisMGet(keys) {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  const res = await fetch(`${url}/${cmd.map(encodeURIComponent).join('/')}`, {
+  const res = await fetch(`${url}/mget/${keys.map(encodeURIComponent).join('/')}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  return res.json();
+  const data = await res.json();
+  return data.result || [];
+}
+
+function sanitizeId(id) {
+  return String(id).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
 }
 
 function getThreshold(likes) {
@@ -22,16 +27,14 @@ function getThreshold(likes) {
 
 export default async function handler(req) {
   const url = new URL(req.url);
-  const id = url.searchParams.get('id');
+  const rawId = url.searchParams.get('id') || '';
+  const id = sanitizeId(rawId);
   if (!id) return new Response(JSON.stringify({ count: 0, likes: 0, threshold: 5 }), { headers: HEADERS });
 
   try {
-    const [votesRes, likesRes] = await Promise.all([
-      redisCmd(['GET', `votes:${id}`]),
-      redisCmd(['GET', `likes:${id}`])
-    ]);
-    const count = parseInt(votesRes.result || '0');
-    const likes = parseInt(likesRes.result || '0');
+    const [votesVal, likesVal] = await redisMGet([`votes:${id}`, `likes:${id}`]);
+    const count = parseInt(votesVal || '0');
+    const likes = parseInt(likesVal || '0');
     const threshold = getThreshold(likes);
     return new Response(JSON.stringify({ count, likes, threshold }), {
       headers: { ...HEADERS, 'Cache-Control': 's-maxage=10' }
