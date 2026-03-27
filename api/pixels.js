@@ -5,6 +5,12 @@ const HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
+const ALLOWED_COLORS = new Set([
+  '#f0f0f0','#c8c8c8','#888888','#444444','#111111',
+  '#e05252','#e07a52','#e0c252','#52c25e','#5290e0','#9452e0','#e052b8',
+  '#52d4e0','#a0d452','#e0a052','#5e3a2a', null
+]);
+
 async function redis(cmd) {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
@@ -14,19 +20,42 @@ async function redis(cmd) {
   return res.json();
 }
 
+// MGET — fetch multiple keys in one command
+async function redisMGet(keys) {
+  if (!keys.length) return [];
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  const res = await fetch(`${url}/mget/${keys.map(encodeURIComponent).join('/')}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+  return data.result || [];
+}
+
 function getIP(req) {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
-async function fetchByIds(ids) {
-  if (!ids || ids.length === 0) return [];
-  const items = await Promise.all(
-    ids.map(id => redis(['GET', `px:${id}`]).then(r => r.result))
-  );
-  return items.filter(Boolean).map(item => typeof item === 'string' ? JSON.parse(item) : item);
+function validatePixels(pixels) {
+  if (!Array.isArray(pixels)) return false;
+  if (pixels.length !== 900) return false; // exactly 30×30
+  for (const p of pixels) {
+    if (p !== null && !ALLOWED_COLORS.has(p)) return false;
+  }
+  return true;
+}
+
+function sanitizeId(id) {
+  return String(id).replace(/[^a-zA-Z0-9_-]/g, '');
 }
 
 export default async function handler(req) {
+  // Block oversized requests early
+  const contentLength = req.headers.get('content-length');
+  if (contentLength && parseInt(contentLength) > 50000) {
+    return new Response(JSON.stringify({ error: 'payload_too_large' }), { status: 413, headers: HEADERS });
+  }
+
   if (req.method === 'POST') {
     try {
       const ip = getIP(req);
@@ -37,23 +66,41 @@ export default async function handler(req) {
         return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: HEADERS });
       }
 
-      const body = await req.json();
+      let body;
+      try { body = await req.json(); }
+      catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: HEADERS }); }
+
       const { pixels, w, h } = body;
-      if (!pixels || !Array.isArray(pixels)) {
-        return new Response(JSON.stringify({ error: 'invalid' }), { status: 400, headers: HEADERS });
+
+      if (!validatePixels(pixels)) {
+        return new Response(JSON.stringify({ error: 'invalid_pixels' }), { status: 400, headers: HEADERS });
       }
 
-      const id = Date.now().toString();
-      const entry = JSON.stringify({ id, pixels, w: w || 30, h: h || 30, ts: Date.now() });
+      // Use timestamp + random suffix to avoid millisecond collisions
+      const id = `${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      const entry = JSON.stringify({ id, pixels, w: 30, h: 30, ts: Date.now() });
+
       await redis(['SET', `px:${id}`, entry]);
       await redis(['ZADD', 'px:list', Date.now().toString(), id]);
-      await redis(['ZREMRANGEBYRANK', 'px:list', '0', '-201']);
+
+      // Clean up old arts — remove both from sorted set AND delete their keys
+      const oldIds = await redis(['ZRANGE', 'px:list', '0', '-201']);
+      if (oldIds.result && oldIds.result.length > 0) {
+        for (const oldId of oldIds.result) {
+          await redis(['DEL', `px:${oldId}`]);
+          await redis(['DEL', `votes:${oldId}`]);
+          await redis(['DEL', `likes:${oldId}`]);
+          await redis(['ZREM', 'px:liked', oldId]);
+        }
+        await redis(['ZREMRANGEBYRANK', 'px:list', '0', `-${oldIds.result.length + 1}`]);
+      }
+
       await redis(['INCR', rateKey]);
       await redis(['EXPIRE', rateKey, '3600']);
 
       return new Response(JSON.stringify({ ok: true, id }), { headers: HEADERS });
     } catch (e) {
-      return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: HEADERS });
+      return new Response(JSON.stringify({ error: 'server_error' }), { status: 500, headers: HEADERS });
     }
   }
 
@@ -63,22 +110,44 @@ export default async function handler(req) {
       const type = url.searchParams.get('type') || 'new';
 
       if (type === 'liked') {
-        // Most liked — sorted by likes desc, min 1 like
-        const ids = await redis(['ZRANGE', 'px:liked', '0', '49', 'REV']);
-        const items = await fetchByIds(ids.result || []);
-        // Attach like counts
-        const withLikes = await Promise.all(items.map(async item => {
-          const lr = await redis(['GET', `likes:${item.id}`]);
-          return { ...item, likes: parseInt(lr.result || '0') };
-        }));
-        return new Response(JSON.stringify(withLikes.filter(i => i.likes > 0)), {
+        const idsRes = await redis(['ZRANGE', 'px:liked', '0', '49', 'REV']);
+        const ids = (idsRes.result || []).map(sanitizeId);
+        if (!ids.length) return new Response(JSON.stringify([]), { headers: HEADERS });
+
+        const keys = ids.map(id => `px:${id}`);
+        const values = await redisMGet(keys);
+
+        const items = values
+          .filter(Boolean)
+          .map(v => { try { return typeof v === 'string' ? JSON.parse(v) : v; } catch { return null; } })
+          .filter(Boolean);
+
+        // Fetch all like counts in one MGET
+        const likeKeys = items.map(i => `likes:${i.id}`);
+        const likeCounts = await redisMGet(likeKeys);
+        const withLikes = items.map((item, i) => ({
+          ...item,
+          likes: parseInt(likeCounts[i] || '0')
+        })).filter(i => i.likes > 0);
+
+        return new Response(JSON.stringify(withLikes), {
           headers: { ...HEADERS, 'Cache-Control': 's-maxage=30' }
         });
       }
 
-      // New — sorted by time desc
-      const ids = await redis(['ZRANGE', 'px:list', '0', '99', 'REV']);
-      const items = await fetchByIds(ids.result || []);
+      // New — sorted by time, use MGET
+      const idsRes = await redis(['ZRANGE', 'px:list', '0', '99', 'REV']);
+      const ids = (idsRes.result || []).map(sanitizeId);
+      if (!ids.length) return new Response(JSON.stringify([]), { headers: HEADERS });
+
+      const keys = ids.map(id => `px:${id}`);
+      const values = await redisMGet(keys);
+
+      const items = values
+        .filter(Boolean)
+        .map(v => { try { return typeof v === 'string' ? JSON.parse(v) : v; } catch { return null; } })
+        .filter(Boolean);
+
       return new Response(JSON.stringify(items), {
         headers: { ...HEADERS, 'Cache-Control': 's-maxage=30' }
       });
