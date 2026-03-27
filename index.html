@@ -120,7 +120,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .cpx-in{position:relative;z-index:1;padding:28px 36px;display:flex;align-items:center;gap:24px;}
 .cpx-body{flex:1;}
 .cpx-tag{font-size:11px;color:rgba(255,255,255,0.22);letter-spacing:0.1em;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
-.cpx-name{font-size:20px;color:rgba(255,255,255,0.82);line-height:1;margin-bottom:6px;letter-spacing:0.02em;font-family:'Space Grotesk',sans-serif;font-weight:400;}
+.cpx-name{font-size:20px;color:rgba(255,255,255,0.82);line-height:1;margin-bottom:6px;letter-spacing:0.02em;font-family:'Space Grotesk','Manrope',sans-serif;font-weight:400;}
 .cpx-desc{font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:0.02em;line-height:1.6;}
 .cpx-pill{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-size:10px;letter-spacing:0.1em;padding:5px 12px;border-radius:100px;background:rgba(130,180,255,0.07);color:rgba(130,180,255,0.6);border:0.5px solid rgba(130,180,255,0.2);}
 .cpx-icon{flex-shrink:0;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:60px;}
@@ -129,12 +129,12 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .home-page.hidden{display:none;}
 /* CHANGELOG */
 .pixel-page{display:none;padding:60px 0 0;}
-.pixel-page.active{display:block;}
+.pixel-page.active{display:block !important;visibility:visible !important;opacity:1 !important;}
 .changelog-page{display:none;padding:60px 0 0;}
 .changelog-page.active{display:block;}
 .cl-title{font-family:'Space Grotesk',sans-serif;font-weight:300;font-size:clamp(44px,10vw,100px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);white-space:nowrap;}
 .cl-title .br{color:#f0f0f0;font-weight:400;}
-.px-page-title{font-family:'Space Grotesk',sans-serif;font-weight:300;font-size:clamp(44px,10vw,100px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);}
+.px-page-title{font-family:'Space Grotesk','Manrope',sans-serif;font-weight:300;font-size:clamp(44px,10vw,100px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);}
 .px-page-title .br{color:#f0f0f0;font-weight:400;}
 .cl-tw-cursor{display:inline-block;width:4px;height:0.82em;background:#f0f0f0;vertical-align:middle;margin-left:3px;animation:cblink 1s step-end infinite;}
 .cl-sub{font-size:13px;color:rgba(255,255,255,0.28);margin-top:32px;line-height:2;letter-spacing:0.02em;}
@@ -481,9 +481,32 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
       <div class="back-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <span class="back-label">back</span>
     </div>
-    <div class="px-page-title" id="pxPageTitle"></div>
+    <div class="px-page-title" id="pxPageTitle"><span class="br">pixel</span><span style="color:rgba(255,255,255,0.12)">_wall.</span></div>
 
-    <div class="px-label" style="margin-top:48px;"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">pixel_wall</span> — draw smth</div>
+    <!-- LANG SWITCH -->
+    <div class="px-lang" id="pxLang">
+      <span class="px-lang-btn active" id="pxLangEn" onclick="setPxLang('en')">en</span>
+      <span class="px-lang-sep">/</span>
+      <span class="px-lang-btn" id="pxLangRu" onclick="setPxLang('ru')">ru</span>
+    </div>
+    <!-- SEASON 1 -->
+    <div class="px-season" id="pxSeason">
+      <div class="px-season-b"></div>
+      <div class="px-season-in">
+        <div class="px-season-left">
+          <div class="px-season-tag"><span class="cmt">// </span>season_1</div>
+          <div class="px-season-title" style="font-family:'JetBrains Mono',monospace;font-size:15px;" data-en="the first pixel wall." data-ru="первая пиксельная стенка.">the first pixel wall.</div>
+          <div class="px-season-desc" data-en="every artwork published this season will be compiled into one giant map — a snapshot of everyone who drew something here. draw anything. your pixel art becomes part of history." data-ru="каждый арт этого сезона войдёт в одну большую карту — снапшот всех кто здесь что-то нарисовал. рисуй что угодно. твой пиксель-арт станет частью истории.">every artwork published this season will be compiled into one giant map — a snapshot of everyone who drew something here. draw anything. your pixel art becomes part of history.</div>
+        </div>
+        <div class="px-season-right">
+          <div class="px-season-count" id="pxSeasonCount">—</div>
+          <div class="px-season-count-label" data-en="artworks published" data-ru="опубликовано артов">artworks published</div>
+          <div class="px-season-status"><span class="px-season-dot"></span><span data-en="active" data-ru="активен">active</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-label" style="margin-top:48px;"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)" data-en="pixel_wall" data-ru="pixel_wall">pixel_wall</span> — <span data-en="draw smth" data-ru="нарисуй что-нибудь">draw smth</span></div>
 
     <!-- EDITOR -->
     <div class="px-editor-wrap">
@@ -492,29 +515,62 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
         <div class="px-size-info">30 × 30 pixels</div>
       </div>
       <div class="px-tools">
-        <div class="px-colors" id="pxColors"></div>
+        <div class="px-colors" id="pxColors">
+          <div class="px-color active" data-color="#f0f0f0" style="background:#f0f0f0"></div>
+          <div class="px-color" data-color="#c8c8c8" style="background:#c8c8c8"></div>
+          <div class="px-color" data-color="#888888" style="background:#888888"></div>
+          <div class="px-color" data-color="#444444" style="background:#444444"></div>
+          <div class="px-color" data-color="#111111" style="background:#111111"></div>
+          <div class="px-color" data-color="#e05252" style="background:#e05252"></div>
+          <div class="px-color" data-color="#e07a52" style="background:#e07a52"></div>
+          <div class="px-color" data-color="#e0c252" style="background:#e0c252"></div>
+          <div class="px-color" data-color="#52c25e" style="background:#52c25e"></div>
+          <div class="px-color" data-color="#5290e0" style="background:#5290e0"></div>
+          <div class="px-color" data-color="#9452e0" style="background:#9452e0"></div>
+          <div class="px-color" data-color="#e052b8" style="background:#e052b8"></div>
+          <div class="px-color" data-color="#52d4e0" style="background:#52d4e0"></div>
+          <div class="px-color" data-color="#a0d452" style="background:#a0d452"></div>
+          <div class="px-color" data-color="#e0a052" style="background:#e0a052"></div>
+          <div class="px-color" data-color="#5e3a2a" style="background:#5e3a2a"></div>
+        </div>
+        <script>
+        (function(){
+          var pal=document.getElementById('pxColors');
+          if(!pal)return;
+          pal.onclick=function(e){
+            var d=e.target;
+            while(d&&d!==pal&&!d.classList.contains('px-color'))d=d.parentElement;
+            if(!d||!d.classList.contains('px-color'))return;
+            var c=d.getAttribute('data-color');
+            if(!c)return;
+            if(typeof window._pxSetColor==='function')window._pxSetColor(c);
+            pal.querySelectorAll('.px-color').forEach(function(x){x.classList.remove('active');});
+            d.classList.add('active');
+          };
+        })();
+        </script>
         <div class="px-tool-row">
-          <span class="px-btn" id="pxEraser">eraser</span>
-          <span class="px-btn" id="pxClear">clear</span>
+          <span class="px-btn" id="pxEraser" data-en="eraser" data-ru="ластик">eraser</span>
+          <span class="px-btn" id="pxClear" data-en="clear" data-ru="очистить">clear</span>
         </div>
         <div class="px-tool-row">
-          <span class="px-btn primary" id="pxSubmit">publish →</span>
+          <span class="px-btn primary" id="pxSubmit" data-en="publish →" data-ru="опубликовать →">publish →</span>
         </div>
-        <div class="px-hint"><span style="color:rgba(255,255,255,0.55)">draw anything.</span><br>it will appear below.<br><span style="color:rgba(255,255,255,0.45)">community decides</span> what stays.</div>
+        <div class="px-hint"><span style="color:rgba(255,255,255,0.55)" data-en="draw anything." data-ru="рисуй что угодно.">draw anything.</span><br><span data-en="it will appear below." data-ru="появится ниже.">it will appear below.</span><br><span style="color:rgba(255,255,255,0.45)" data-en="community decides" data-ru="сообщество решает">community decides</span> <span data-en="what stays." data-ru="что остаётся.">what stays.</span></div>
         <div class="px-status" id="pxStatus"></div>
       </div>
     </div>
 
     <!-- GALLERY -->
-    <div class="px-gallery-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">community_art</span></div>
-    <div class="px-disclaimer">
-      <span class="px-disclaimer-hl">// rules</span><br>
-      draw anything. almost.<br>
-      <span style="color:rgba(255,255,255,0.22);">—</span> no hate symbols or extremist imagery<br>
-      <span style="color:rgba(255,255,255,0.22);">—</span> no explicit sexual content or graphic violence<br>
-      <span style="color:rgba(255,255,255,0.22);">—</span> spam and ads get removed instantly<br><br>
-      the rest is up to the community.<br>
-      <span style="color:rgba(255,255,255,0.45);">flag what breaks the vibe. 5 votes removes it.</span>
+    <div class="px-gallery-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)" data-en="community_art" data-ru="работы сообщества">community_art</span></div>
+    <div class="px-disclaimer" id="pxDisclaimer">
+      <span class="px-disclaimer-hl" data-en="// rules" data-ru="// правила">// rules</span><br>
+      <span data-en="draw anything. almost." data-ru="рисуй что угодно. почти.">draw anything. almost.</span><br>
+      <span style="color:rgba(255,255,255,0.22);">—</span> <span data-en="no hate symbols or extremist imagery" data-ru="никакой символики ненависти и экстремизма">no hate symbols or extremist imagery</span><br>
+      <span style="color:rgba(255,255,255,0.22);">—</span> <span data-en="no explicit sexual content or graphic violence" data-ru="без откровенного сексуального контента и жестокости">no explicit sexual content or graphic violence</span><br>
+      <span style="color:rgba(255,255,255,0.22);">—</span> <span data-en="spam and ads get removed instantly" data-ru="спам и реклама удаляются моментально">spam and ads get removed instantly</span><br><br>
+      <span data-en="the rest is up to the community." data-ru="остальное решает сообщество.">the rest is up to the community.</span><br>
+      <span style="color:rgba(255,255,255,0.45);" data-en="flag what breaks the vibe. 5 votes removes it." data-ru="флагни то, что разрушает атмосферу. 5 голосов — и работа удалена.">flag what breaks the vibe. 5 votes removes it.</span>
     </div>
 
     <div class="px-gate-wrap" id="pxGateWrap">
@@ -524,7 +580,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
           <div class="px-grid" id="pxLikedGallery"></div>
         </div>
         <div id="pxEmptyState" style="display:block;">
-          <div class="px-empty">no art yet. be the first.</div>
+          <div class="px-empty" data-en="no art yet. be the first." data-ru="пока пусто. нарисуй первым.">no art yet. be the first.</div>
         </div>
         <div id="pxGallerySection" style="display:none;">
           <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
@@ -537,10 +593,10 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
             <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <div class="px-gate-info">
-            <div class="px-gate-title">sensitive content</div>
-            <div class="px-gate-sub">unmoderated — may contain any content</div>
+            <div class="px-gate-title" data-en="sensitive content" data-ru="чувствительный контент">sensitive content</div>
+            <div class="px-gate-sub" data-en="unmoderated — may contain any content" data-ru="без модерации — может быть любой контент">unmoderated — may contain any content</div>
           </div>
-          <span class="px-gate-btn" id="pxRevealBtn">reveal</span>
+          <span class="px-gate-btn" id="pxRevealBtn" data-en="reveal" data-ru="показать">reveal</span>
         </div>
       </div>
     </div>
@@ -554,13 +610,13 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
   <div class="px-modal-inner" onclick="event.stopPropagation()">
     <canvas id="pxModalCanvas" width="30" height="30"></canvas>
     <div class="px-modal-actions">
-      <span class="px-modal-close" onclick="closePxModal()">// close</span>
+      <span class="px-modal-close" onclick="closePxModal()" data-en="// close" data-ru="// закрыть">// close</span>
       <span class="px-modal-like" id="pxModalLike">♡ <span id="pxModalLikeCount">0</span></span>
-      <span class="px-modal-flag" id="pxFlagBtn">// flag</span>
+      <span class="px-modal-flag" id="pxFlagBtn" data-en="// flag" data-ru="// пожаловаться">// flag</span>
     </div>
     <!-- Vote panel — shown after flag click -->
     <div class="px-vote-panel" id="pxVotePanel" style="display:none;">
-      <div class="px-vote-title" id="pxVoteTitle">flag for removal</div>
+      <div class="px-vote-title" id="pxVoteTitle" data-en="flag for removal" data-ru="жалоба на удаление">flag for removal</div>
       <div class="px-vote-sub" id="pxVoteSub">login with telegram to cast your vote.<br><span id="pxVoteCount" style="color:rgba(255,255,255,0.5);">loading votes...</span></div>
       <div id="pxTgWidget"></div>
       <div class="px-vote-status" id="pxVoteStatus"></div>
@@ -570,6 +626,27 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 <!-- PIXEL WALL -->
 <style>
+/* SEASON */
+.px-season{position:relative;border-radius:22px;overflow:hidden;margin-top:36px;margin-bottom:0;}
+.px-season-b{position:absolute;inset:0;border-radius:22px;border:0.5px solid rgba(130,180,255,0.15);background:rgba(130,180,255,0.03);}
+.px-season-in{position:relative;z-index:1;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.px-season-left{flex:1;min-width:200px;}
+.px-season-tag{font-size:10px;letter-spacing:0.18em;color:rgba(130,180,255,0.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.px-season-tag .cmt{color:rgba(130,180,255,0.3);}
+.px-season-title{font-family:'Space Grotesk','Manrope',sans-serif;font-size:18px;font-weight:400;color:rgba(255,255,255,0.75);letter-spacing:-0.01em;margin-bottom:10px;}
+.px-season-desc{font-size:11px;color:rgba(255,255,255,0.28);line-height:1.8;letter-spacing:0.01em;max-width:480px;}
+.px-season-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.px-season-count{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:300;color:rgba(255,255,255,0.75);letter-spacing:-0.04em;line-height:1;}
+.px-season-count-label{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:0.12em;font-family:'JetBrains Mono',monospace;}
+.px-season-status{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:10px;letter-spacing:0.12em;color:rgba(130,180,255,0.6);font-family:'JetBrains Mono',monospace;}
+.px-season-dot{width:5px;height:5px;border-radius:50%;background:rgba(130,180,255,0.8);animation:blink 2s infinite;flex-shrink:0;}
+@media(max-width:600px){.px-season-in{flex-direction:column;align-items:flex-start;gap:20px;}.px-season-right{align-items:flex-start;}.px-season-count{font-size:36px;}}
+/* LANG */
+.px-lang{display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:0;}
+.px-lang-btn{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.14em;color:rgba(255,255,255,0.25);cursor:pointer;transition:color 0.2s;user-select:none;padding:4px 2px;}
+.px-lang-btn:hover{color:rgba(255,255,255,0.6);}
+.px-lang-btn.active{color:rgba(255,255,255,0.8);}.px-lang{margin-top:20px;margin-bottom:0;display:flex;align-items:center;gap:10px;}
+.px-lang-sep{font-size:13px;color:rgba(255,255,255,0.15);font-family:'JetBrains Mono',monospace;}
 .px-section{padding:0;}
 .px-wrap{max-width:800px;margin:0 auto;padding:0;}
 .px-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:28px;display:flex;align-items:center;gap:10px;}
@@ -692,7 +769,6 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <script>
 document.getElementById('fav').href='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><rect width=\'32\' height=\'32\' rx=\'8\' fill=\'%23000000\'/><circle cx=\'16\' cy=\'16\' r=\'3\' fill=\'%23ffffff\'/></svg>';
 
-fetchTgCount();
 /* TG count — via /api/subscribers edge function */
 async function fetchTgCount(){
   const el=document.getElementById('tgCount');
@@ -717,21 +793,24 @@ function showPixel(push){
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('changelogPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
-  document.getElementById('pixelPage').classList.add('active');
+  const cp=document.getElementById('pixelPage');
+  cp.classList.add('active');
   if(push!==false) history.pushState({},'','/pixel');
   document.title='pixel_wall — smth.is';
-  // Init pixel wall JS on first visit
-  setTimeout(initPixelWall, 50);
+  // Init immediately + backup via setTimeout
+  initPixelWall();
+  setTimeout(initPixelWall, 100);
   if(pixelShownOnce){
-    document.getElementById('pxPageTitle').innerHTML='<span class="br">pixel</span><span style="color:rgba(255,255,255,0.12)">_wall.</span>';
     return;
   }
   pixelShownOnce=true;
-  const cp=document.getElementById('pixelPage');
-  cp.style.opacity='0';cp.style.transform='translateY(12px)';
-  setTimeout(()=>{cp.style.transition='opacity 0.45s,transform 0.45s';cp.style.opacity='1';cp.style.transform='none';},20);
-  document.getElementById('pxPageTitle').innerHTML='';
+  setTimeout(startPixelTW, 300);
+}
+
+function startPixelTW(){
   const el=document.getElementById('pxPageTitle');
+  if(!el)return;
+  el.innerHTML='';
   const full='pixel_wall.';const brightEnd=5;
   const cur=document.createElement('span');cur.className='cl-tw-cursor';el.appendChild(cur);
   let i=0;
@@ -741,9 +820,74 @@ function showPixel(push){
     if(i<brightEnd)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
     el.insertBefore(sp,cur);i++;setTimeout(tick,Math.random()*55+38);
   }
-  setTimeout(tick,350);
+  tick();
 }
 
+// Language switcher for pixel page
+let pxLang='en';
+const pxI18n={
+  en:{
+    voteTitle:'flag for removal',
+    voteSub:'login with telegram to cast your vote.',
+    likeTitle:'like this artwork',
+    likeSub:'login with telegram to like.',
+    likeProtect:'your like protects it from removal.',
+    votesFor:'votes for removal',
+    protectedBy:'protected by',
+    likes:'likes',
+    voteRecorded:'// vote recorded',
+    artRemoved:'// artwork removed',
+    artGone:'// artwork no longer exists',
+    alreadyVoted:'// already voted',
+    authFailed:'// auth failed',
+    liked:'// liked!',
+    likeRemoved:'// like removed',
+    drawFirst:'// draw something first',
+    publishing:'publishing...',
+    published:'// published!',
+    waitMinute:'// wait a minute between posts',
+    maxPerHour:'// max 2 artworks per hour',
+    error:'// error, try again',
+    saving:'saving...',
+  },
+  ru:{
+    voteTitle:'жалоба на удаление',
+    voteSub:'войди через telegram чтобы проголосовать.',
+    likeTitle:'лайкнуть работу',
+    likeSub:'войди через telegram чтобы лайкнуть.',
+    likeProtect:'твой лайк защищает арт от удаления.',
+    votesFor:'голосов за удаление',
+    protectedBy:'защищён лайками',
+    likes:'лайков',
+    voteRecorded:'// голос засчитан',
+    artRemoved:'// работа удалена',
+    artGone:'// работа больше не существует',
+    alreadyVoted:'// уже голосовал',
+    authFailed:'// ошибка авторизации',
+    liked:'// лайк поставлен!',
+    likeRemoved:'// лайк убран',
+    drawFirst:'// сначала нарисуй что-нибудь',
+    publishing:'публикуем...',
+    published:'// опубликовано!',
+    waitMinute:'// подожди минуту между постами',
+    maxPerHour:'// максимум 2 работы в час',
+    error:'// ошибка, попробуй снова',
+    saving:'сохраняем...',
+  }
+};
+function t(key){ return pxI18n[pxLang][key]||pxI18n.en[key]; }
+function setPxLang(lang){
+  pxLang=lang;
+  document.getElementById('pxLangEn').className='px-lang-btn'+(lang==='en'?' active':'');
+  document.getElementById('pxLangRu').className='px-lang-btn'+(lang==='ru'?' active':'');
+  // Translate all elements with data-en/data-ru
+  document.querySelectorAll('#pixelPage [data-en], #pxModal [data-en], #pxGateOverlay [data-en]').forEach(el=>{
+    el.textContent=lang==='ru'?el.getAttribute('data-ru'):el.getAttribute('data-en');
+  });
+  try{localStorage.setItem('px_lang',lang);}catch(e){}
+}
+// Restore saved lang
+try{const saved=localStorage.getItem('px_lang');if(saved==='ru')setTimeout(()=>setPxLang('ru'),150);}catch(e){}
 function showChangelog(push){
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('contactPage').classList.remove('active');
@@ -952,37 +1096,33 @@ function startChangelogTW(){
 let pixelWallInited=false;
 function initPixelWall(){
   if(pixelWallInited)return;
-  pixelWallInited=true;
-(function(){
-  const COLS=['#f0f0f0','#c8c8c8','#888888','#444444','#111111',
-    '#e05252','#e07a52','#e0c252','#52c25e','#5290e0','#9452e0','#e052b8',
-    '#52d4e0','#a0d452','#e0a052','#5e3a2a'];
   const cv=document.getElementById('pxCanvas');
+  if(!cv){setTimeout(initPixelWall,100);return;}
+  // colors defined in HTML swatches
   const ctx=cv.getContext('2d');
   const W=30,H=30;
   let pixels=new Array(W*H).fill(null);
-  let curColor=COLS[0];
+  let curColor='#f0f0f0';
   let erasing=false;
   let drawing=false;
+  // Expose color setter so inline palette script can update it
+  window._pxSetColor=(c)=>{curColor=c;erasing=false;};
 
   // init canvas
   ctx.fillStyle='#0e0e0e';
   ctx.fillRect(0,0,W,H);
 
-  // color palette
+  // color palette — wire via event delegation
   const palette=document.getElementById('pxColors');
-  COLS.forEach(c=>{
-    const d=document.createElement('div');
-    d.className='px-color'+(c===curColor?' active':'');
-    d.style.background=c;
-    d.onclick=()=>{
-      curColor=c;erasing=false;
-      document.getElementById('pxEraser').style.color='rgba(255,255,255,0.4)';
-      palette.querySelectorAll('.px-color').forEach(x=>x.classList.remove('active'));
-      d.classList.add('active');
-    };
-    palette.appendChild(d);
-  });
+  palette.onclick=(e)=>{
+    const d=e.target.closest('.px-color');
+    if(!d)return;
+    curColor=d.getAttribute('data-color');
+    erasing=false;
+    document.getElementById('pxEraser').style.color='rgba(255,255,255,0.4)';
+    palette.querySelectorAll('.px-color').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+  };
 
   function getCell(e){
     const r=cv.getBoundingClientRect();
@@ -1023,8 +1163,8 @@ function initPixelWall(){
   document.getElementById('pxSubmit').onclick=async()=>{
     const hasPixel=pixels.some(p=>p!==null);
     const st=document.getElementById('pxStatus');
-    if(!hasPixel){st.className='px-status err';st.textContent='// draw something first';return;}
-    st.className='px-status';st.textContent='publishing...';
+    if(!hasPixel){st.className='px-status err';st.textContent=t('drawFirst');return;}
+    st.className='px-status';st.textContent=t('publishing');
     try{
       const res=await fetch('/api/pixels',{
         method:'POST',
@@ -1033,22 +1173,22 @@ function initPixelWall(){
       });
       const data=await res.json();
       if(res.status===429){
-        const msg=data.error==='cooldown'?'// wait a minute between posts':'// max 2 artworks per hour';
+        const msg=data.error==='cooldown'?t('waitMinute'):t('maxPerHour');
         st.className='px-status err';st.textContent=msg;
       } else if(res.status===400){
         st.className='px-status err';st.textContent='// invalid artwork data';
       } else if(res.status===413){
         st.className='px-status err';st.textContent='// payload too large';
       } else if(!res.ok){
-        st.className='px-status err';st.textContent='// error, try again';
+        st.className='px-status err';st.textContent=t('error');
       } else {
-        st.className='px-status ok';st.textContent='// published!';
+        st.className='px-status ok';st.textContent=t('published');
         pixels=new Array(W*H).fill(null);
         ctx.fillStyle='#0e0e0e';ctx.fillRect(0,0,W,H);
         setTimeout(loadGallery,800);
       }
     }catch{
-      st.className='px-status err';st.textContent='// error, try again';
+      st.className='px-status err';st.textContent=t('error');
     }
     setTimeout(()=>{st.textContent='';},3000);
   };
@@ -1102,7 +1242,7 @@ function initPixelWall(){
       .then(r=>r.json())
       .then(d=>{
         const el=document.getElementById('pxVoteCount');
-        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} votes for removal${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
+        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} ${t('votesFor')}${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
         const likeEl=document.getElementById('pxModalLikeCount');
         if(likeEl) likeEl.textContent=d.likes||0;
       }).catch(()=>{
@@ -1126,12 +1266,12 @@ function initPixelWall(){
       panel.style.display='flex';
       likeMode=false;
       // Switch panel text to flag mode
-      document.getElementById('pxVoteTitle').textContent='flag for removal';
+      document.getElementById('pxVoteTitle').textContent=t('voteTitle');
       document.getElementById('pxVoteSub').innerHTML='login with telegram to cast your vote.<br><span id="pxVoteCount" style="color:rgba(255,255,255,0.5);">loading...</span>';
       // Fetch current vote count
       if(currentArtId) fetch(`/api/votecount?id=${currentArtId}`).then(r=>r.json()).then(d=>{
         const el=document.getElementById('pxVoteCount');
-        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} votes for removal${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
+        if(el) el.textContent=`${d.count||0} / ${d.threshold||5} ${t('votesFor')}${d.likes>=5?' (protected by '+d.likes+' likes)':''}`;
       }).catch(()=>{});
       const w=document.getElementById('pxTgWidget');
       const s=document.createElement('script');
@@ -1155,7 +1295,7 @@ function initPixelWall(){
     const panel=document.getElementById('pxVotePanel');
     panel.style.display='flex';
     // Switch panel text to like mode
-    document.getElementById('pxVoteTitle').textContent='like this artwork';
+    document.getElementById('pxVoteTitle').textContent=t('likeTitle');
     document.getElementById('pxVoteSub').innerHTML='login with telegram to like.<br><span style="color:rgba(255,255,255,0.5);">your like protects it from removal.</span>';
     const w=document.getElementById('pxTgWidget');
     w.innerHTML='';
@@ -1177,7 +1317,7 @@ function initPixelWall(){
 
     if(likeMode){
       likeMode=false;
-      st.className='px-vote-status';st.textContent='saving...';
+      st.className='px-vote-status';st.textContent=t('saving');
       try{
         const res=await fetch('/api/like',{
           method:'POST',
@@ -1186,32 +1326,32 @@ function initPixelWall(){
         });
         const d=await res.json();
         if(res.status===404){
-          st.className='px-vote-status err';st.textContent='// artwork no longer exists';
+          st.className='px-vote-status err';st.textContent=t('artGone');
           setTimeout(()=>{closePxModal();loadGallery();},1500);
           return;
         }
-        if(!res.ok){st.className='px-vote-status err';st.textContent='// error';return;}
+        if(!res.ok){st.className='px-vote-status err';st.textContent=t('error');return;}
         const likeBtn=document.getElementById('pxModalLike');
         likeBtn.className='px-modal-like'+(d.liked?' liked':'');
         likeBtn.innerHTML=(d.liked?'♥':'♡')+' <span id="pxModalLikeCount">'+d.count+'</span>';
         setLiked(currentArtId, d.liked);
         st.className='px-vote-status ok';
-        st.textContent=d.liked?'// liked!':'// like removed';
+        st.textContent=d.liked?t('liked'):t('likeRemoved');
         // Refresh threshold display
         fetch(`/api/votecount?id=${currentArtId}`).then(r=>r.json()).then(vd=>{
           const el=document.getElementById('pxVoteCount');
-          if(el) el.textContent=`${vd.count||0} / ${vd.threshold||5} votes for removal${vd.likes>=5?' (protected by '+vd.likes+' likes)':''}`;
+          if(el) el.textContent=vd.count||0+' / '+(vd.threshold||5)+' '+t('votesFor')+(vd.likes>=5?' ('+t('protectedBy')+' '+vd.likes+' '+t('likes')+')':'');
         });
         // Hide panel after like
         setTimeout(()=>{document.getElementById('pxVotePanel').style.display='none';st.textContent='';},1500);
       }catch{
-        st.className='px-vote-status err';st.textContent='// error, try again';
+        st.className='px-vote-status err';st.textContent=t('error');
       }
       return;
     }
 
     // Vote flow
-    st.className='px-vote-status';st.textContent='submitting vote...';
+    st.className='px-vote-status';st.textContent=t('publishing');
     try{
       const res=await fetch('/api/vote',{
         method:'POST',
@@ -1220,24 +1360,24 @@ function initPixelWall(){
       });
       const d=await res.json();
       if(res.status===409){
-        st.className='px-vote-status err';st.textContent='// already voted';
+        st.className='px-vote-status err';st.textContent=t('alreadyVoted');
       } else if(res.status===404){
-        st.className='px-vote-status err';st.textContent='// artwork no longer exists';
+        st.className='px-vote-status err';st.textContent=t('artGone');
         setTimeout(()=>{closePxModal();loadGallery();},1500);
       } else if(res.status===401){
-        st.className='px-vote-status err';st.textContent='// auth failed';
+        st.className='px-vote-status err';st.textContent=t('authFailed');
       } else if(!res.ok){
-        st.className='px-vote-status err';st.textContent='// error, try again';
+        st.className='px-vote-status err';st.textContent=t('error');
       } else if(d.deleted){
-        st.className='px-vote-status ok';st.textContent='// artwork removed';
+        st.className='px-vote-status ok';st.textContent=t('artRemoved');
         setTimeout(()=>{closePxModal();loadGallery();},1200);
       } else {
-        st.className='px-vote-status ok';st.textContent=`// vote recorded (${d.count}/${d.threshold})`;
+        st.className='px-vote-status ok';st.textContent=t('voteRecorded')+' ('+d.count+'/'+d.threshold+')';
         const el=document.getElementById('pxVoteCount');
-        if(el) el.textContent=`${d.count} / ${d.threshold} votes for removal`;
+        if(el) el.textContent=`${d.count} / ${d.threshold} '+t('votesFor')+'`;
       }
     }catch{
-      st.className='px-vote-status err';st.textContent='// error, try again';
+      st.className='px-vote-status err';st.textContent=t('error');
     }
   };
 
@@ -1323,8 +1463,20 @@ function initPixelWall(){
       }
     }catch(e){console.log('gallery err',e);}
   }
+  // Season 1 counter
+  async function loadSeasonCount(){
+    try{
+      const res=await fetch('/api/pixels?type=new');
+      const items=await res.json();
+      const el=document.getElementById('pxSeasonCount');
+      if(el) el.textContent=items.length||0;
+    }catch(e){}
+  }
+  loadSeasonCount();
+
   loadGallery();
-})();
+
+  pixelWallInited=true;
 } // end initPixelWall
 
 /* Scrolling browser tab title */
