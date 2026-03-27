@@ -446,14 +446,14 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-status{font-size:10px;letter-spacing:0.08em;min-height:14px;transition:opacity 0.3s;}
 .px-status.ok{color:rgba(150,218,160,0.7);}
 .px-status.err{color:rgba(255,90,90,0.7);}
-.px-gallery-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.22);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.px-gallery-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.22);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .px-gallery-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.06);}
 .px-gallery-label .cmt{color:rgba(255,255,255,0.1);}
-.px-gallery-wrap{overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);}
-.px-gallery{display:flex;gap:12px;animation:pxScroll 40s linear infinite;width:max-content;}
-.px-gallery:hover{animation-play-state:paused;}
-.px-gallery canvas{width:96px;height:96px;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.2s;flex-shrink:0;}
-.px-gallery canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.05);}
+.px-disclaimer{font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.04em;line-height:1.7;margin-bottom:20px;}
+.px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
+.px-grid canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.15s;display:block;}
+.px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
+.px-empty{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;padding:16px 0;}
 /* MODAL */
 .px-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;}
 .px-modal.open{display:flex;}
@@ -461,8 +461,6 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-modal canvas{image-rendering:pixelated;border-radius:16px;border:0.5px solid rgba(255,255,255,0.12);width:min(320px,80vw);height:min(320px,80vw);}
 .px-modal-close{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.14em;cursor:pointer;transition:color 0.2s;}
 .px-modal-close:hover{color:rgba(255,255,255,0.8);}
-.px-empty{font-size:11px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;padding:16px 0;}
-@keyframes pxScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
 /* tablet */
 @media(max-width:768px){
@@ -482,6 +480,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
   .px-color{width:26px;height:26px;border-radius:6px;}
   .px-hint{display:none;}
   .px-gallery canvas{width:76px;height:76px;}
+  .px-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;}
 }
 
 /* small mobile */
@@ -491,7 +490,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 }
 </style>
 
-<section class="px-section">
+<section class="px-section" id="pxSection">
   <div class="px-wrap">
     <div class="px-label"><span class="cmt">// </span>pixel_wall — draw smth</div>
 
@@ -517,13 +516,12 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
     <!-- GALLERY below -->
     <div class="px-gallery-label"><span class="cmt">// </span>community art</div>
+    <div class="px-disclaimer">all artworks are free — no censorship, no rules, any content is allowed. the only limit is pixel count.</div>
     <div id="pxEmptyState" style="display:block;">
       <div class="px-empty">no art yet. be the first.</div>
     </div>
     <div id="pxGallerySection" style="display:none;">
-      <div class="px-gallery-wrap">
-        <div class="px-gallery" id="pxGallery"></div>
-      </div>
+      <div class="px-grid" id="pxGallery"></div>
     </div>
   </div>
 </section>
@@ -895,20 +893,28 @@ function startChangelogTW(){
       if(emptyState)emptyState.style.display='none';
       if(gallerySection)gallerySection.style.display='block';
       gal.innerHTML='';
-      // Only duplicate if enough items to fill scroll, otherwise just show once
-      const toRender=items.length>=6?[...items,...items]:items;
-      toRender.forEach(item=>{
+      // Grid — just render each item once, newest first
+      items.forEach(item=>{
         const c=renderArt(item);
         gal.appendChild(c);
       });
-      // Pause animation if not enough to scroll
-      if(items.length<6) gal.style.animationPlayState='paused';
-      else gal.style.animationPlayState='running';
-      const dur=Math.max(20,items.length*5);
-      gal.style.animationDuration=dur+'s';
     }catch(e){console.log('gallery err',e);}
   }
   loadGallery();
+
+  // Fade in pixel section when scrolled into view
+  const pxSec=document.getElementById('pxSection');
+  if(pxSec){
+    pxSec.style.opacity='0';
+    pxSec.style.transition='opacity 0.9s ease';
+    const obs=new IntersectionObserver(entries=>{
+      if(entries[0].isIntersecting){
+        pxSec.style.opacity='1';
+        obs.disconnect();
+      }
+    },{threshold:0.05});
+    obs.observe(pxSec);
+  }
 })();
 </script>
 (function(){
