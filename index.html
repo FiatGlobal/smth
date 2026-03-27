@@ -113,10 +113,23 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .d-res.show{opacity:1;}
 .d-hint{font-size:10px;color:rgba(200,200,200,0.3);letter-spacing:0.1em;}
 .svg-w path{fill:#ffffff;}
+/* PIXEL CARD */
+.card-px{position:relative;border-radius:22px;overflow:hidden;margin-bottom:12px;cursor:pointer;text-decoration:none;display:block;}
+.card-px:hover .cpx-b{border-color:rgba(255,255,255,0.13);background:#111;}
+.cpx-b{position:absolute;inset:0;border-radius:22px;border:0.5px solid rgba(255,255,255,0.07);background:#0e0e0e;transition:border-color 0.2s,background 0.2s;}
+.cpx-in{position:relative;z-index:1;padding:28px 36px;display:flex;align-items:center;gap:24px;}
+.cpx-body{flex:1;}
+.cpx-tag{font-size:11px;color:rgba(255,255,255,0.22);letter-spacing:0.1em;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.cpx-name{font-size:20px;color:rgba(255,255,255,0.82);line-height:1;margin-bottom:6px;letter-spacing:0.02em;font-family:'Space Grotesk',sans-serif;font-weight:400;}
+.cpx-desc{font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:0.02em;line-height:1.6;}
+.cpx-pill{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-size:10px;letter-spacing:0.1em;padding:5px 12px;border-radius:100px;background:rgba(130,180,255,0.07);color:rgba(130,180,255,0.6);border:0.5px solid rgba(130,180,255,0.2);}
+.cpx-icon{flex-shrink:0;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:60px;}
 .contact-page{display:none;padding:60px 0 0;}
 .contact-page.active{display:block;}
 .home-page.hidden{display:none;}
 /* CHANGELOG */
+.pixel-page{display:none;padding:60px 0 0;}
+.pixel-page.active{display:block;}
 .changelog-page{display:none;padding:60px 0 0;}
 .changelog-page.active{display:block;}
 .cl-title{font-family:'Space Grotesk',sans-serif;font-weight:300;font-size:clamp(44px,10vw,100px);line-height:0.9;letter-spacing:-0.04em;color:rgba(255,255,255,0.12);white-space:nowrap;}
@@ -221,6 +234,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
       <span class="nb-1">s</span><span class="nb-2">m</span><span class="nb-3">t</span><span class="nb-4">h</span><span class="nb-dot">.</span><span class="nb-5">i</span><span class="nb-6">s</span>
     </div>
     <div class="nav-right">
+      <span class="nav-contact" onclick="showPixel()">pixel</span>
       <span class="nav-contact" onclick="showChangelog()">changelog</span>
       <span class="nav-contact" onclick="showContact()">contact</span>
     </div>
@@ -277,6 +291,24 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20M2 12h20" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/></svg>
             <span class="cp-link-n">web</span><span class="cp-link-l">esimpson.org/proxy</span>
           </a>
+        </div>
+      </div>
+    </div>
+    <!-- PIXEL WALL CARD -->
+    <div class="card-px tw-fade" id="i6" onclick="showPixel()">
+      <div class="cpx-b"></div>
+      <div class="cpx-in">
+        <div class="cpx-body">
+          <div class="cpx-tag"><span class="c-b">type:</span> community</div>
+          <div class="cpx-name">pixel_wall</div>
+          <div class="cpx-desc">// draw anything. 30×30 pixels. community judges what stays.</div>
+          <div class="cpx-pill">
+            <svg width="6" height="6" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="rgba(130,180,255,0.8)"/></svg>
+            live
+          </div>
+        </div>
+        <div class="cpx-icon" id="cpxPreview">
+        <canvas id="cpxCanvas" width="30" height="30" style="width:72px;height:72px;image-rendering:pixelated;border-radius:8px;opacity:0.75;flex-shrink:0;"></canvas>
         </div>
       </div>
     </div>
@@ -412,6 +444,70 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div style="height:80px;"></div>
   </div>
 
+  <!-- PIXEL PAGE -->
+  <div class="pixel-page" id="pixelPage">
+    <div class="back-btn" onclick="showHome()">
+      <div class="back-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="back-label">back</span>
+    </div>
+    <div class="cl-title" id="pxPageTitle"></div>
+
+    <div class="px-label" style="margin-top:48px;"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">pixel_wall</span> — draw smth</div>
+
+    <!-- EDITOR -->
+    <div class="px-editor-wrap">
+      <div class="px-canvas-wrap">
+        <canvas id="pxCanvas" width="30" height="30" style="width:300px;height:300px;"></canvas>
+        <div class="px-size-info">30 × 30 pixels</div>
+      </div>
+      <div class="px-tools">
+        <div class="px-colors" id="pxColors"></div>
+        <div class="px-tool-row">
+          <span class="px-btn" id="pxEraser">eraser</span>
+          <span class="px-btn" id="pxClear">clear</span>
+        </div>
+        <div class="px-tool-row">
+          <span class="px-btn primary" id="pxSubmit">publish →</span>
+        </div>
+        <div class="px-hint"><span style="color:rgba(255,255,255,0.55)">draw anything.</span><br>it will appear below.<br><span style="color:rgba(255,255,255,0.45)">community decides</span> what stays.</div>
+        <div class="px-status" id="pxStatus"></div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="px-gallery-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">community_art</span></div>
+    <div class="px-disclaimer"><span class="px-disclaimer-hl">pixel chaos</span> — drawn by humans, judged by humans.<br>flag what breaks the vibe.</div>
+
+    <div class="px-gate-wrap" id="pxGateWrap">
+      <div id="pxAllGalleries">
+        <div id="pxLikedSection" style="display:none;margin-bottom:32px;">
+          <div class="px-gallery-sublabel"><span class="cmt">// </span>most_liked</div>
+          <div class="px-grid" id="pxLikedGallery"></div>
+        </div>
+        <div id="pxEmptyState" style="display:block;">
+          <div class="px-empty">no art yet. be the first.</div>
+        </div>
+        <div id="pxGallerySection" style="display:none;">
+          <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
+          <div class="px-grid" id="pxGallery"></div>
+        </div>
+      </div>
+      <div class="px-gate-overlay" id="pxGateOverlay">
+        <div class="px-gate-box">
+          <svg class="px-gate-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="px-gate-info">
+            <div class="px-gate-title">sensitive content</div>
+            <div class="px-gate-sub">unmoderated — may contain any content</div>
+          </div>
+          <span class="px-gate-btn" id="pxRevealBtn">reveal</span>
+        </div>
+      </div>
+    </div>
+    <div style="height:80px;"></div>
+  </div>
+
 </div></div>
 
 <!-- PIXEL MODAL -->
@@ -435,8 +531,8 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
 <!-- PIXEL WALL -->
 <style>
-.px-section{position:relative;z-index:2;background:#070707;border-top:0.5px solid rgba(255,255,255,0.05);padding:52px 0 60px;}
-.px-wrap{max-width:800px;margin:0 auto;padding:0 48px;}
+.px-section{padding:0;}
+.px-wrap{max-width:800px;margin:0 auto;padding:0;}
 .px-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:28px;display:flex;align-items:center;gap:10px;}
 .px-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.1);}
 .px-label .cmt{color:rgba(255,255,255,0.28);}
@@ -548,71 +644,6 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 }
 </style>
 
-<section class="px-section tw-fade" id="pxSection">
-  <div class="px-wrap">
-    <div class="px-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">pixel_wall</span> — draw smth</div>
-
-    <!-- EDITOR first -->
-    <div class="px-editor-wrap">
-      <div class="px-canvas-wrap">
-        <canvas id="pxCanvas" width="30" height="30" style="width:300px;height:300px;"></canvas>
-        <div class="px-size-info">30 × 30 pixels</div>
-      </div>
-      <div class="px-tools">
-        <div class="px-colors" id="pxColors"></div>
-        <div class="px-tool-row">
-          <span class="px-btn" id="pxEraser">eraser</span>
-          <span class="px-btn" id="pxClear">clear</span>
-        </div>
-        <div class="px-tool-row">
-          <span class="px-btn primary" id="pxSubmit">publish →</span>
-        </div>
-        <div class="px-hint"><span style="color:rgba(255,255,255,0.55)">draw anything.</span><br>it will appear below.<br><span style="color:rgba(255,255,255,0.45)">community decides</span> what stays.</div>
-        <div class="px-status" id="pxStatus"></div>
-      </div>
-    </div>
-
-    <!-- GALLERY below -->
-    <div class="px-gallery-label"><span class="cmt">// </span><span style="color:rgba(255,255,255,0.55)">community_art</span></div>
-    <div class="px-disclaimer"><span class="px-disclaimer-hl">pixel chaos</span> — drawn by humans, judged by humans.<br>flag what breaks the vibe.</div>
-
-    <!-- GATE wraps BOTH sections -->
-    <div class="px-gate-wrap" id="pxGateWrap">
-
-      <!-- blur layer covers both grids -->
-      <div id="pxAllGalleries">
-        <!-- MOST LIKED -->
-        <div id="pxLikedSection" style="display:none;margin-bottom:32px;">
-          <div class="px-gallery-sublabel"><span class="cmt">// </span>most_liked</div>
-          <div class="px-grid" id="pxLikedGallery"></div>
-        </div>
-
-        <!-- NEW -->
-        <div id="pxEmptyState" style="display:block;">
-          <div class="px-empty">no art yet. be the first.</div>
-        </div>
-        <div id="pxGallerySection" style="display:none;">
-          <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
-          <div class="px-grid" id="pxGallery"></div>
-        </div>
-      </div>
-
-      <!-- overlay -->
-      <div class="px-gate-overlay" id="pxGateOverlay">
-        <div class="px-gate-box">
-          <svg class="px-gate-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 3l18 18M10.5 10.677A2 2 0 0112 10a2 2 0 012 2c0 .545-.22 1.04-.577 1.4M6.5 6.646A8.84 8.84 0 002 12s3.4 6 10 6a8.8 8.8 0 004.702-1.355M9.88 4.22A8.8 8.8 0 0112 4c6.6 0 10 8 10 8a8.87 8.87 0 01-1.564 2.31" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <div class="px-gate-info">
-            <div class="px-gate-title">sensitive content</div>
-            <div class="px-gate-sub">unmoderated — may contain any content</div>
-          </div>
-          <span class="px-gate-btn" id="pxRevealBtn">reveal</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <footer class="site-footer">
   <div class="footer-inner"><span>© 2026 smth.is</span></div>
@@ -640,12 +671,46 @@ async function fetchTgCount(){
 }
 fetchTgCount();
 
-let homeShownOnce=false,contactShownOnce=false,changelogShownOnce=false;
+let homeShownOnce=false,contactShownOnce=false,changelogShownOnce=false,pixelShownOnce=false;
+
+function showPixel(push){
+  document.getElementById('homePage').classList.add('hidden');
+  document.getElementById('contactPage').classList.remove('active');
+  document.getElementById('changelogPage').classList.remove('active');
+  document.getElementById('page404').classList.remove('active');
+  document.getElementById('pixelPage').classList.add('active');
+  if(push!==false) history.pushState({},'','/pixel');
+  document.title='pixel_wall — smth.is';
+  if(pixelShownOnce){
+    document.getElementById('pxPageTitle').innerHTML='<span style="color:rgba(255,255,255,0.12)">pixel</span><span class="br">_wall.</span>';
+    ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('tw-fade');el.style.opacity='1';}});
+    return;
+  }
+  pixelShownOnce=true;
+  const cp=document.getElementById('pixelPage');
+  cp.style.opacity='0';cp.style.transform='translateY(12px)';
+  setTimeout(()=>{cp.style.transition='opacity 0.45s,transform 0.45s';cp.style.opacity='1';cp.style.transform='none';},20);
+  document.getElementById('pxPageTitle').innerHTML='';
+  ['pxPageSub'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.add('tw-fade');el.style.opacity='';}});
+  // Typewriter
+  const el=document.getElementById('pxPageTitle');
+  const full='pixel_wall.';const brightStart=5;
+  const cur=document.createElement('span');cur.className='cl-tw-cursor';el.appendChild(cur);
+  let i=0;
+  function tick(){
+    if(i>=full.length){cur.remove();['pxPageSub'].forEach((id,j)=>{setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('show');},j*160);});return;}
+    const sp=document.createElement('span');sp.textContent=full[i];
+    if(i>=brightStart)sp.className='br';else sp.style.color='rgba(255,255,255,0.12)';
+    el.insertBefore(sp,cur);i++;setTimeout(tick,Math.random()*55+38);
+  }
+  setTimeout(tick,350);
+}
 
 function showChangelog(push){
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
+  document.getElementById('pixelPage').classList.remove('active');
   document.getElementById('changelogPage').classList.add('active');
   if(push!==false) history.pushState({},'','/changelog');
   document.title='changelog — smth.is';
@@ -669,10 +734,11 @@ function showHome(push){
   document.getElementById('contactPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
   document.getElementById('changelogPage').classList.remove('active');
+  document.getElementById('pixelPage').classList.remove('active');
   if(push!==false) history.pushState({},'','/');;
   document.title='smth.is';
   if(homeShownOnce){
-    ['heroSub','projLabel','i3','i4','i5','pxSection'].forEach(id=>{
+    ['heroSub','projLabel','i3','i4','i5','i6'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.classList.remove('tw-fade');el.style.opacity='1';}
     });
@@ -683,6 +749,7 @@ function showContact(push){
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('changelogPage').classList.remove('active');
   document.getElementById('page404').classList.remove('active');
+  document.getElementById('pixelPage').classList.remove('active');
   const cp=document.getElementById('contactPage');
   cp.classList.add('active');
   if(push!==false) history.pushState({},'','/contact');
@@ -705,6 +772,7 @@ function showContact(push){
 function show404(path, push){
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('contactPage').classList.remove('active');
+  document.getElementById('pixelPage').classList.remove('active');
   document.getElementById('errPath').textContent=path||'unknown';
   document.getElementById('page404').classList.add('active');
   if(push!==false) history.pushState({},'','/'+(path||'404'));
@@ -719,6 +787,8 @@ window.show404=show404;
     setTimeout(()=>showContact(false),100);
   } else if(path==='changelog'){
     setTimeout(()=>showChangelog(false),100);
+  } else if(path==='pixel'){
+    setTimeout(()=>showPixel(false),100);
   } else if(path&&path!==''&&path!=='index.html'){
     setTimeout(()=>show404(path,false),100);
   }
@@ -729,6 +799,7 @@ window.addEventListener('popstate',function(){
   const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
   if(path==='contact') showContact(false);
   else if(path==='changelog') showChangelog(false);
+  else if(path==='pixel') showPixel(false);
   else if(path===''||path==='index.html') showHome(false);
   else show404(path,false);
 });
@@ -834,7 +905,7 @@ function startChangelogTW(){
   const lines=[{el:'tw1',parts:[{text:'i build ',cls:''},{text:'smth.',cls:'bright'}]},{el:'tw2',parts:[{text:'sometimes ',cls:'mid'},{text:'great.',cls:'bright'}]}];
   let li=0,ci=0,pi=0;
   const cur=document.createElement('span');cur.className='tw-cursor';
-  const fadeSchedule=[{id:'heroSub',delay:800},{id:'projLabel',delay:1100},{id:'i3',delay:1300},{id:'i4',delay:1500},{id:'i5',delay:1700},{id:'pxSection',delay:1900}];
+  const fadeSchedule=[{id:'heroSub',delay:800},{id:'projLabel',delay:1100},{id:'i3',delay:1300},{id:'i4',delay:1500},{id:'i6',delay:1650},{id:'i5',delay:1800}];
   function tick(){const line=lines[li];if(!line){homeShownOnce=true;return;}const el=document.getElementById(line.el);const part=line.parts[pi];if(!part){pi=0;ci=0;li++;setTimeout(tick,120);return;}if(ci===0&&pi===0){el.innerHTML='';el.appendChild(cur);}const ch=part.text[ci];if(ch!==undefined){const sp=document.createElement('span');if(part.cls)sp.className=part.cls;sp.textContent=ch;el.insertBefore(sp,cur);ci++;}else{ci=0;pi++;}setTimeout(tick,Math.random()*40+28);}
   fadeSchedule.forEach(({id,delay})=>{setTimeout(()=>{const el=document.getElementById(id);if(el)el.classList.add('show');},delay);});
   setTimeout(tick,200);
@@ -1210,6 +1281,27 @@ function startChangelogTW(){
     }catch(e){console.log('gallery err',e);}
   }
   loadGallery();
+
+  // Render a preview on the home card
+  function renderCardPreview(items){
+    const cv=document.getElementById('cpxCanvas');
+    if(!cv||!items||!items.length) return;
+    const item=items[Math.floor(Math.random()*Math.min(items.length,5))];
+    if(!item) return;
+    cv.width=item.w||30;cv.height=item.h||30;
+    const cx=cv.getContext('2d');
+    cx.fillStyle='#0e0e0e';cx.fillRect(0,0,cv.width,cv.height);
+    (item.pixels||[]).forEach((col,i)=>{
+      if(!col)return;
+      const x=i%cv.width,y=Math.floor(i/cv.width);
+      cx.fillStyle=col;cx.fillRect(x,y,1,1);
+    });
+  }
+  // Fetch one art for preview
+  fetch('/api/pixels?type=liked').then(r=>r.json()).then(items=>{
+    if(items&&items.length) renderCardPreview(items);
+    else fetch('/api/pixels?type=new').then(r=>r.json()).then(renderCardPreview);
+  }).catch(()=>{});
 })();
 </script>
 (function(){
@@ -1217,6 +1309,7 @@ function startChangelogTW(){
     '/': '   smth.is   ·   smth.is   ·   smth.is   ·   ',
     '/contact': '   contact — smth.is   ·   contact — smth.is   ·   ',
     '/changelog': '   changelog — smth.is   ·   changelog — smth.is   ·   ',
+    '/pixel': '   pixel_wall — smth.is   ·   pixel_wall — smth.is   ·   ',
   };
   let pos = 0;
   let currentScroll = titles['/'];
