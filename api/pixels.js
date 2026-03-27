@@ -6,8 +6,8 @@ const HEADERS = {
 };
 
 async function redis(cmd) {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
   const res = await fetch(`${url}/${cmd.map(encodeURIComponent).join('/')}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
