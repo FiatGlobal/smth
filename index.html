@@ -490,7 +490,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 }
 </style>
 
-<section class="px-section" id="pxSection">
+<section class="px-section tw-fade" id="pxSection">
   <div class="px-wrap">
     <div class="px-label"><span class="cmt">// </span>pixel_wall — draw smth</div>
 
@@ -584,7 +584,7 @@ function showHome(push){
   if(push!==false) history.pushState({},'','/');;
   document.title='smth.is';
   if(homeShownOnce){
-    ['heroSub','projLabel','i3','i4','i5'].forEach(id=>{
+    ['heroSub','projLabel','i3','i4','i5','pxSection'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.classList.remove('tw-fade');el.style.opacity='1';}
     });
@@ -746,7 +746,7 @@ function startChangelogTW(){
   const lines=[{el:'tw1',parts:[{text:'i build ',cls:''},{text:'smth.',cls:'bright'}]},{el:'tw2',parts:[{text:'sometimes ',cls:'mid'},{text:'great.',cls:'bright'}]}];
   let li=0,ci=0,pi=0;
   const cur=document.createElement('span');cur.className='tw-cursor';
-  const fadeSchedule=[{id:'heroSub',delay:800},{id:'projLabel',delay:1100},{id:'i3',delay:1300},{id:'i4',delay:1500},{id:'i5',delay:1700}];
+  const fadeSchedule=[{id:'heroSub',delay:800},{id:'projLabel',delay:1100},{id:'i3',delay:1300},{id:'i4',delay:1500},{id:'i5',delay:1700},{id:'pxSection',delay:1900}];
   function tick(){const line=lines[li];if(!line){homeShownOnce=true;return;}const el=document.getElementById(line.el);const part=line.parts[pi];if(!part){pi=0;ci=0;li++;setTimeout(tick,120);return;}if(ci===0&&pi===0){el.innerHTML='';el.appendChild(cur);}const ch=part.text[ci];if(ch!==undefined){const sp=document.createElement('span');if(part.cls)sp.className=part.cls;sp.textContent=ch;el.insertBefore(sp,cur);ci++;}else{ci=0;pi++;}setTimeout(tick,Math.random()*40+28);}
   fadeSchedule.forEach(({id,delay})=>{setTimeout(()=>{const el=document.getElementById(id);if(el)el.classList.add('show');},delay);});
   setTimeout(tick,200);
@@ -901,20 +901,6 @@ function startChangelogTW(){
     }catch(e){console.log('gallery err',e);}
   }
   loadGallery();
-
-  // Fade in pixel section when scrolled into view
-  const pxSec=document.getElementById('pxSection');
-  if(pxSec){
-    pxSec.style.opacity='0';
-    pxSec.style.transition='opacity 0.9s ease';
-    const obs=new IntersectionObserver(entries=>{
-      if(entries[0].isIntersecting){
-        pxSec.style.opacity='1';
-        obs.disconnect();
-      }
-    },{threshold:0.05});
-    obs.observe(pxSec);
-  }
 })();
 </script>
 (function(){
