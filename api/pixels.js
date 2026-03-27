@@ -14,19 +14,39 @@ async function redis(cmd) {
   return res.json();
 }
 
+function getIP(req) {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+}
+
 export default async function handler(req) {
   if (req.method === 'POST') {
     try {
+      const ip = getIP(req);
+      const rateKey = `rate:${ip}`;
+
+      // Check rate limit — max 2 per hour
+      const countRes = await redis(['GET', rateKey]);
+      const count = parseInt(countRes.result || '0');
+      if (count >= 2) {
+        return new Response(JSON.stringify({ error: 'rate_limit', message: 'max 2 artworks per hour' }), { status: 429, headers: HEADERS });
+      }
+
       const body = await req.json();
       const { pixels, w, h } = body;
       if (!pixels || !Array.isArray(pixels)) {
         return new Response(JSON.stringify({ error: 'invalid' }), { status: 400, headers: HEADERS });
       }
+
       const id = Date.now().toString();
       const entry = JSON.stringify({ id, pixels, w: w || 30, h: h || 30, ts: Date.now() });
       await redis(['SET', `px:${id}`, entry]);
       await redis(['ZADD', 'px:list', Date.now().toString(), id]);
       await redis(['ZREMRANGEBYRANK', 'px:list', '0', '-201']);
+
+      // Increment rate limit counter, expire in 1 hour
+      await redis(['INCR', rateKey]);
+      await redis(['EXPIRE', rateKey, '3600']);
+
       return new Response(JSON.stringify({ ok: true, id }), { headers: HEADERS });
     } catch (e) {
       return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: HEADERS });
