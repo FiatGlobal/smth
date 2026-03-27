@@ -1025,7 +1025,8 @@ function initPixelWall(){
       });
       const data=await res.json();
       if(res.status===429){
-        st.className='px-status err';st.textContent='// max 2 artworks per hour';
+        const msg=data.error==='cooldown'?'// wait a minute between posts':'// max 2 artworks per hour';
+        st.className='px-status err';st.textContent=msg;
       } else if(res.status===400){
         st.className='px-status err';st.textContent='// invalid artwork data';
       } else if(res.status===413){
