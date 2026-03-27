@@ -921,6 +921,10 @@ function startChangelogTW(){
       const data=await res.json();
       if(res.status===429){
         st.className='px-status err';st.textContent='// max 2 artworks per hour';
+      } else if(res.status===400){
+        st.className='px-status err';st.textContent='// invalid artwork data';
+      } else if(res.status===413){
+        st.className='px-status err';st.textContent='// payload too large';
       } else if(!res.ok){
         st.className='px-status err';st.textContent='// error, try again';
       } else {
@@ -1067,6 +1071,11 @@ function startChangelogTW(){
           body:JSON.stringify({pixelId:currentArtId,tgData:user})
         });
         const d=await res.json();
+        if(res.status===404){
+          st.className='px-vote-status err';st.textContent='// artwork no longer exists';
+          setTimeout(()=>{closePxModal();loadGallery();},1500);
+          return;
+        }
         if(!res.ok){st.className='px-vote-status err';st.textContent='// error';return;}
         const likeBtn=document.getElementById('pxModalLike');
         likeBtn.className='px-modal-like'+(d.liked?' liked':'');
@@ -1098,6 +1107,9 @@ function startChangelogTW(){
       const d=await res.json();
       if(res.status===409){
         st.className='px-vote-status err';st.textContent='// already voted';
+      } else if(res.status===404){
+        st.className='px-vote-status err';st.textContent='// artwork no longer exists';
+        setTimeout(()=>{closePxModal();loadGallery();},1500);
       } else if(res.status===401){
         st.className='px-vote-status err';st.textContent='// auth failed';
       } else if(!res.ok){
@@ -1175,8 +1187,10 @@ function startChangelogTW(){
       const revBtn=document.getElementById('pxRevealBtn');
       if(revBtn)revBtn.onclick=revealGallery;
       const allGal=document.getElementById('pxAllGalleries');
-      if(allGal&&!localStorage.getItem('px_revealed')) allGal.classList.add('px-gate-blur');
-      try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
+      try{
+        if(allGal&&!localStorage.getItem('px_revealed')) allGal.classList.add('px-gate-blur');
+        if(localStorage.getItem('px_revealed')==='1') revealGallery();
+      }catch(e){if(allGal)allGal.classList.add('px-gate-blur');}
         gal.innerHTML='';
         items.forEach(item=>gal.appendChild(renderArt(item)));
       }
