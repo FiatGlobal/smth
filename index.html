@@ -460,7 +460,9 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .px-gallery-label{font-size:11px;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .px-gallery-label::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.1);}
 .px-gallery-label .cmt{color:rgba(255,255,255,0.28);}
-.px-disclaimer{font-size:11px;color:rgba(255,255,255,0.38);letter-spacing:0.03em;line-height:1.7;margin-bottom:20px;}
+.px-gallery-sublabel{font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.32);margin-bottom:12px;margin-top:4px;display:flex;align-items:center;gap:8px;}
+.px-gallery-sublabel .cmt{color:rgba(255,255,255,0.18);}
+.px-gallery-sublabel::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,0.07);}
 .px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
 .px-grid canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:10px;border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;transition:border-color 0.2s,transform 0.15s;display:block;}
 .px-grid canvas:hover{border-color:rgba(255,255,255,0.25);transform:scale(1.04);}
@@ -571,10 +573,19 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <!-- GALLERY below -->
     <div class="px-gallery-label"><span class="cmt">// </span>community_art</div>
     <div class="px-disclaimer">pixel chaos — drawn by humans, judged by humans. flag what breaks the vibe.</div>
+
+    <!-- MOST LIKED -->
+    <div id="pxLikedSection" style="display:none;margin-bottom:32px;">
+      <div class="px-gallery-sublabel"><span class="cmt">// </span>most_liked</div>
+      <div class="px-grid" id="pxLikedGallery"></div>
+    </div>
+
+    <!-- NEW -->
     <div id="pxEmptyState" style="display:block;">
       <div class="px-empty">no art yet. be the first.</div>
     </div>
     <div id="pxGallerySection" style="display:none;">
+      <div class="px-gallery-sublabel"><span class="cmt">// </span>smth_new</div>
       <div class="px-gate-wrap" id="pxGateWrap">
         <div class="px-grid px-gate-blur" id="pxGallery"></div>
         <div class="px-gate-overlay" id="pxGateOverlay">
@@ -915,6 +926,11 @@ function startChangelogTW(){
     setTimeout(()=>{st.textContent='';},3000);
   };
 
+  // Liked state — stored in localStorage
+  function getLiked(){try{return JSON.parse(localStorage.getItem('px_liked')||'{}');}catch{return{};}}
+  function setLiked(id,val){try{const d=getLiked();if(val)d[id]=1;else delete d[id];localStorage.setItem('px_liked',JSON.stringify(d));}catch{}}
+  function isLiked(id){return!!getLiked()[id];}
+
   // BLUR GATE
   function revealGallery(){
     const grid=document.getElementById('pxGallery');
@@ -1031,9 +1047,9 @@ function startChangelogTW(){
         const d=await res.json();
         if(!res.ok){st.className='px-vote-status err';st.textContent='// error';return;}
         const likeBtn=document.getElementById('pxModalLike');
-        const likeCount=document.getElementById('pxModalLikeCount');
         likeBtn.className='px-modal-like'+(d.liked?' liked':'');
         likeBtn.innerHTML=(d.liked?'♥':'♡')+' <span id="pxModalLikeCount">'+d.count+'</span>';
+        setLiked(currentArtId, d.liked);
         st.className='px-vote-status ok';
         st.textContent=d.liked?'// liked!':'// like removed';
         // Refresh threshold display
@@ -1102,11 +1118,14 @@ function startChangelogTW(){
       <rect x="2" y="1" width="1.5" height="10" fill="rgba(255,255,255,0.9)" rx="0.5"/>
       <path d="M3.5 1.5 L10.5 1.5 L10.5 6.5 L3.5 6.5 Z" fill="rgba(220,60,60,0.95)"/>
     </svg>`;
-    // Heart icon
+    // Heart icon — red if already liked
     const heart=document.createElement('div');
-    heart.className='px-art-like';
+    const alreadyLiked=isLiked(data.id);
+    heart.className='px-art-like'+(alreadyLiked?' liked':'');
     heart.title='like';
-    heart.innerHTML=`<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5S1 7 1 3.8C1 2.3 2.1 1 3.5 1c.8 0 1.9.6 2.5 1.5C6.6 1.6 7.7 1 8.5 1 9.9 1 11 2.3 11 3.8 11 7 6 10.5 6 10.5z" stroke="rgba(255,255,255,0.7)" stroke-width="1" fill="none"/></svg>`;
+    heart.innerHTML=alreadyLiked
+      ? `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5S1 7 1 3.8C1 2.3 2.1 1 3.5 1c.8 0 1.9.6 2.5 1.5C6.6 1.6 7.7 1 8.5 1 9.9 1 11 2.3 11 3.8 11 7 6 10.5 6 10.5z" fill="rgba(220,60,80,0.9)" stroke="rgba(220,60,80,0.9)" stroke-width="0.5"/></svg>`
+      : `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5S1 7 1 3.8C1 2.3 2.1 1 3.5 1c.8 0 1.9.6 2.5 1.5C6.6 1.6 7.7 1 8.5 1 9.9 1 11 2.3 11 3.8 11 7 6 10.5 6 10.5z" stroke="rgba(255,255,255,0.7)" stroke-width="1" fill="none"/></svg>`;
     heart.onclick=(e)=>{e.stopPropagation();openPxModal(data,false);setTimeout(()=>{document.getElementById('pxModalLike').click();},100);};
     flag.onclick=(e)=>{e.stopPropagation();openPxModal(data,true);};
     c.onclick=()=>openPxModal(data,false);
@@ -1118,7 +1137,8 @@ function startChangelogTW(){
 
   async function loadGallery(){
     try{
-      const res=await fetch('/api/pixels');
+      // Load new arts
+      const res=await fetch('/api/pixels?type=new');
       const items=await res.json();
       const emptyState=document.getElementById('pxEmptyState');
       const gallerySection=document.getElementById('pxGallerySection');
@@ -1126,20 +1146,28 @@ function startChangelogTW(){
       if(!items||items.length===0){
         if(emptyState)emptyState.style.display='block';
         if(gallerySection)gallerySection.style.display='none';
-        return;
+      } else {
+        if(emptyState)emptyState.style.display='none';
+        if(gallerySection)gallerySection.style.display='block';
+        const revBtn=document.getElementById('pxRevealBtn');
+        if(revBtn)revBtn.onclick=revealGallery;
+        try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
+        gal.innerHTML='';
+        items.forEach(item=>gal.appendChild(renderArt(item)));
       }
-      if(emptyState)emptyState.style.display='none';
-      if(gallerySection)gallerySection.style.display='block';
-      // Wire reveal button now that it's visible
-      const revBtn=document.getElementById('pxRevealBtn');
-      if(revBtn)revBtn.onclick=revealGallery;
-      try{if(localStorage.getItem('px_revealed')==='1')revealGallery();}catch(e){}
-      gal.innerHTML='';
-      // Grid — just render each item once, newest first
-      items.forEach(item=>{
-        const c=renderArt(item);
-        gal.appendChild(c);
-      });
+
+      // Load most liked
+      const likedRes=await fetch('/api/pixels?type=liked');
+      const likedItems=await likedRes.json();
+      const likedSection=document.getElementById('pxLikedSection');
+      const likedGal=document.getElementById('pxLikedGallery');
+      if(likedItems&&likedItems.length>0){
+        likedSection.style.display='block';
+        likedGal.innerHTML='';
+        likedItems.forEach(item=>likedGal.appendChild(renderArt(item)));
+      } else {
+        likedSection.style.display='none';
+      }
     }catch(e){console.log('gallery err',e);}
   }
   loadGallery();
