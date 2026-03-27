@@ -48,8 +48,6 @@ export default async function handler(req) {
 
     const userId = tgData.id.toString();
     const likeKey = `like:${pixelId}:${userId}`;
-
-    // Toggle like
     const existing = await redisCmd(['GET', likeKey]);
     let count, liked;
 
@@ -59,6 +57,12 @@ export default async function handler(req) {
       const countRes = await redisCmd(['DECR', `likes:${pixelId}`]);
       count = Math.max(0, countRes.result || 0);
       liked = false;
+      // Update or remove from liked sorted set
+      if (count > 0) {
+        await redisCmd(['ZADD', 'px:liked', count.toString(), pixelId]);
+      } else {
+        await redisCmd(['ZREM', 'px:liked', pixelId]);
+      }
     } else {
       // Like
       await redisCmd(['SET', likeKey, '1']);
@@ -66,6 +70,8 @@ export default async function handler(req) {
       const countRes = await redisCmd(['INCR', `likes:${pixelId}`]);
       count = countRes.result || 0;
       liked = true;
+      // Add/update in liked sorted set
+      await redisCmd(['ZADD', 'px:liked', count.toString(), pixelId]);
     }
 
     return new Response(JSON.stringify({ ok: true, liked, count }), { headers: HEADERS });
